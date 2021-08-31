@@ -53,3 +53,5 @@ Deploy the contents of the ./dapp folder
 
 
 //"server": "rm -rf ./build/server && webpack --config webpack.config.server.js"
+
+https://review.udacity.com/#!/rubrics/1711/view
