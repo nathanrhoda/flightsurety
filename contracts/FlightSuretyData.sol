@@ -76,13 +76,13 @@ contract FlightSuretyData {
     */
     function isAirline
                       (
-                            
+                          address account  
                       )
                       external
                       view
                       returns(bool)
     {
-        return airlines[msg.sender] == 1;
+        return airlines[account] == 1;
     }
 
 

@@ -102,12 +102,13 @@ contract FlightSuretyApp {
     */   
     function registerAirline
                             (   
+                                address account
                             )
                             external
-                            pure
                             returns(bool success, uint256 votes)
     {
-        return (success, 0);
+        flightSuretyData.registerAirline(account);
+        return (flightSuretyData.isAirline(account), 0);
     }
 
 
@@ -337,4 +338,6 @@ contract FlightSuretyApp {
 
 abstract contract IFlightSuretyData {
     function isOperational() external virtual returns(bool);
+    function registerAirline(address account) external virtual;
+    function isAirline(address account) external virtual returns(bool);
 }
