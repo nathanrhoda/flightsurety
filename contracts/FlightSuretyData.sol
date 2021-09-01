@@ -13,6 +13,8 @@ contract FlightSuretyData {
     address private contractOwner;                                      // Account used to deploy contract
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
 
+    mapping(address=> uint256) private authorizedAccounts;
+    mapping(address=> uint256) private airlines;
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
@@ -56,9 +58,47 @@ contract FlightSuretyData {
         _;
     }
 
+    /**
+    * @dev Modifier that requires account to be authorized
+    */
+    modifier requireCallerAuthorized()
+    {
+        require(authorizedAccounts[msg.sender] == 1, "Caller is not authorized");
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
+
+    /**
+    * @dev Checks to see if calling account is a airline
+    */
+    function isAirline
+                      (
+                            
+                      )
+                      external
+                      view
+                      returns(bool)
+    {
+        return airlines[msg.sender] == 1;
+    }
+
+
+    /** 
+    * @dev Authorizes account to make use of the contract    
+    */
+    function authorizeCaller
+                            (
+                                address account
+                            )
+                            external
+                            requireIsOperational
+                            requireContractOwner
+    {
+        authorizedAccounts[account] = 1;
+    }
 
     /**
     * @dev Get operating status of contract
@@ -100,10 +140,15 @@ contract FlightSuretyData {
     */   
     function registerAirline
                             (   
+                                address account
                             )
-                            external
-                            pure
+                            external                       
+                            requireIsOperational     
+                            requireContractOwner
     {
+        require(airlines[account] != 1, "Account has already been registered");
+
+        airlines[account] = 1;
     }
 
 
@@ -116,6 +161,7 @@ contract FlightSuretyData {
                             )
                             external
                             payable
+                            requireIsOperational
     {
 
     }
@@ -127,7 +173,7 @@ contract FlightSuretyData {
                                 (
                                 )
                                 external
-                                pure
+                                requireIsOperational              
     {
     }
     
@@ -140,7 +186,7 @@ contract FlightSuretyData {
                             (
                             )
                             external
-                            pure
+                            requireIsOperational
     {
     }
 
@@ -154,6 +200,7 @@ contract FlightSuretyData {
                             )
                             public
                             payable
+                            requireIsOperational
     {
     }
 
