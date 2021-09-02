@@ -102,4 +102,30 @@ contract('Flight Surety Tests', async (accounts) => {
     expect(result).to.be.true;
   
   });
+
+  it('Only existing airline may register new airline while less than 4 airlines are registered', async () => {
+
+    // ARRANGE
+
+    //ACT
+
+    //ASSERT
+  });
+
+  it('Registering a fifth airline requires multiparty consensus of 50% of registered airlines ', async () => {
+
+    // ARRANGE
+
+    //ACT
+
+    //ASSERT
+  });
+
+  it('Airline can only participate in contract after submitting 10 ether', async () => {
+    // ARRANGE
+
+    //ACT
+
+    //ASSERT
+  });
 });
