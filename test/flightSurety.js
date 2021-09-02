@@ -78,10 +78,10 @@ contract('Flight Surety Tests', async (accounts) => {
 
     // ACT
     try {
-        await config.flightSuretyApp.registerAirline(newAirline, {from: config.firstAirline});
+        let result1 = await config.flightSuretyApp.registerAirline(newAirline, {from: config.firstAirline});
     }
     catch(e) {
-
+        console.log("ERROR: " + e);
     }
     let result = await config.flightSuretyData.isAirline.call(newAirline); 
 
@@ -91,12 +91,9 @@ contract('Flight Surety Tests', async (accounts) => {
   });
  
   it('first airline is registered when contract is deployed', async () => {
-
-    // ARRANGE
-    let firstAirline = await config.firstAirline;
-
+        
     // ACT
-    let result = await config.flightSuretyData.isAirline.call(firstAirline);
+    let result = await config.flightSuretyData.isAirline.call(config.firstAirline);
 
     // ASSERT    
     expect(result).to.be.true;
@@ -106,10 +103,19 @@ contract('Flight Surety Tests', async (accounts) => {
   it('Only existing airline may register new airline while less than 4 airlines are registered', async () => {
 
     // ARRANGE
+    let airline2 = accounts[2];
+    
+    // ACT
+    try {
+        await config.flightSuretyApp.registerAirline(airline2, {from: config.firstAirline});
+    }
+    catch(e) {
 
-    //ACT
-
-    //ASSERT
+    }
+    let result = await config.flightSuretyData.isAirline.call(airline2);       
+    
+    // ASSERT    
+    expect(result).to.be.true;
   });
 
   it('Registering a fifth airline requires multiparty consensus of 50% of registered airlines ', async () => {
