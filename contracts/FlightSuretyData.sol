@@ -10,11 +10,18 @@ contract FlightSuretyData {
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
 
+    struct Airline {
+        string name;
+        address addr;
+        bool isRegistered;
+        uint funds;
+    }
+
     address private contractOwner;                                      // Account used to deploy contract
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
 
     mapping(address=> uint256) private authorizedAccounts;
-    mapping(address=> uint256) private airlines;
+    mapping(uint256=>Airline) private airlines;
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
@@ -84,7 +91,8 @@ contract FlightSuretyData {
                       view
                       returns(bool)
     {
-        return airlines[account] == 1;
+        Airline memory airline = airlines[account];
+        return airline.isRegistered == true;
     }
 
 
@@ -148,9 +156,21 @@ contract FlightSuretyData {
                             requireIsOperational     
                             requireContractOwner
     {
-        require(airlines[account] != 1, "Account has already been registered");
+        require(airlines[account].isRegistered == false, "Account has already been registered");
 
-        airlines[account] = 1;
+        // airlines[account] = Airline({
+        //                     name: "Default",
+        //                     isRegistered: true,
+        //                     funds: 0
+        //                     });
+        Airline memory airline;
+        airline.name = "DEFAULT";
+        airline.isRegistered = true;
+        airline.funds = 0;
+      
+        airlines[account] = airline;    
+
+        require(airlines[account].isRegistered == true, "Airline should be registered");        
     }
 
 

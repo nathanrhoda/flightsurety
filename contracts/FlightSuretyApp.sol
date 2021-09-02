@@ -110,7 +110,8 @@ contract FlightSuretyApp {
                             returns(bool success, uint256 votes)
     {
         flightSuretyData.registerAirline(account);
-        return (flightSuretyData.isAirline(account), 0);
+        require(flightSuretyData.isAirline(account), "Not airline but should be");
+        return (flightSuretyData.isAirline(account), 0);        
     }
 
 
@@ -341,5 +342,5 @@ contract FlightSuretyApp {
 abstract contract IFlightSuretyData {
     function isOperational() external virtual returns(bool);
     function registerAirline(address account) external virtual;
-    function isAirline(address account) external virtual returns(bool);
+    function isAirline(address account) external virtual returns(bool);    
 }
