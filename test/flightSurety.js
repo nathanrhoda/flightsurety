@@ -90,5 +90,16 @@ contract('Flight Surety Tests', async (accounts) => {
 
   });
  
+  it('first airline is registered when contract is deployed', async () => {
 
+    // ARRANGE
+    let firstAirline = await config.firstAirline;
+
+    // ACT
+    let result = await config.flightSuretyData.isAirline.call(firstAirline);
+
+    // ASSERT    
+    expect(result).to.be.true;
+  
+  });
 });

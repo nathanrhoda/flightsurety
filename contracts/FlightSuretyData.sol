@@ -25,10 +25,12 @@ contract FlightSuretyData {
     *      The deploying account becomes contractOwner
     */
     constructor
-                                (
+                                (     
+                                    address firstAirline
                                 ) 
-    {
+    {        
         contractOwner = msg.sender;
+        registerAirline(firstAirline);
     }
 
     /********************************************************************************************/
@@ -142,7 +144,7 @@ contract FlightSuretyData {
                             (   
                                 address account
                             )
-                            external                       
+                            internal                       
                             requireIsOperational     
                             requireContractOwner
     {

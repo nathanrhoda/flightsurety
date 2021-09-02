@@ -75,9 +75,11 @@ contract FlightSuretyApp {
     */
     constructor
                                 (
+                                    address dataContract
                                 ) 
     {
         contractOwner = msg.sender;
+        flightSuretyData = IFlightSuretyData(dataContract);
     }
 
     /********************************************************************************************/
