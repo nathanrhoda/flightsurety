@@ -109,8 +109,7 @@ contract FlightSuretyApp {
                             external
                             returns(bool success, uint256 votes)
     {
-        flightSuretyData.registerAirline(account);
-        require(flightSuretyData.isAirline(account), "Not airline but should be");
+        flightSuretyData.registerAirline(account);    
         return (flightSuretyData.isAirline(account), 0);        
     }
 

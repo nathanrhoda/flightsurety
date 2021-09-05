@@ -21,7 +21,7 @@ contract FlightSuretyData {
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
 
     mapping(address=> uint256) private authorizedAccounts;
-    mapping(uint256=>Airline) private airlines;
+    mapping(address=>Airline) private airlines;
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
@@ -90,9 +90,8 @@ contract FlightSuretyData {
                       external
                       view
                       returns(bool)
-    {
-        Airline memory airline = airlines[account];
-        return airline.isRegistered == true;
+    {        
+        return airlines[account].isRegistered == true;
     }
 
 
@@ -169,8 +168,9 @@ contract FlightSuretyData {
         airline.funds = 0;
       
         airlines[account] = airline;    
-
+        
         require(airlines[account].isRegistered == true, "Airline should be registered");        
+     
     }
 
 
