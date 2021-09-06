@@ -105,7 +105,46 @@ contract('Airline Tests', async (accounts) => {
     let result = await config.flightSuretyData.getRegisteredAirlines.call();             
     
     result = await config.flightSuretyData.getRegisteredAirlines.call();       
-    console.log(result.length)
+
+    //ASSERT
+    assert.equal(is4thAirlineRegistered, true, "4th Airline registered should register without issues");
+    assert.equal(result.length, 4, "Only 4 airlines registered because consensus has not been reached");        
+  }); 
+
+  it('Registering a fifth airline successfully when 50% consensus is reached', async () => {
+
+    assert.equal(true, false, "Go on from here");
+    // ARRANGE
+    let airline2 = accounts[6]
+    let airline2Name = "Airline 2";
+
+    let airline3 = accounts[3]
+    let airline3Name = "Airline 3";
+
+    let airline4 = accounts[4]
+    let airline4Name = "Airline 4";
+
+    let airline5 = accounts[5]
+    let airline5Name = "Airline 5";
+
+    //ACT
+    await config.flightSuretyApp.registerAirline(airline2Name, airline2, {from: config.firstAirline});
+    await config.flightSuretyApp.fundAirline({from: airline2, value: TEN_ETHER, gasPrice: 0})
+
+    await config.flightSuretyApp.registerAirline(airline3Name, airline3, {from: config.firstAirline});
+    await config.flightSuretyApp.fundAirline({from: airline3, value: TEN_ETHER, gasPrice: 0})
+
+    let register4th = await config.flightSuretyApp.registerAirline.call(airline4Name, airline4, {from: config.firstAirline});        
+    await config.flightSuretyApp.fundAirline({from: airline4, value: TEN_ETHER, gasPrice: 0})
+    let is4thAirlineRegistered = register4th[0];    
+        
+    await config.flightSuretyApp.registerAirline.call(airline5Name, airline5, {from: config.firstAirline});
+    await config.flightSuretyApp.registerAirline.call(airline5Name, airline5, {from: config.firstAirline});
+    await config.flightSuretyApp.fundAirline({from: airline5, value: TEN_ETHER, gasPrice: 0})
+
+    let result = await config.flightSuretyData.getRegisteredAirlines.call();             
+    
+    result = await config.flightSuretyData.getRegisteredAirlines.call();       
 
     //ASSERT
     assert.equal(is4thAirlineRegistered, true, "4th Airline registered should register without issues");
