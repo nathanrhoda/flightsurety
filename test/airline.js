@@ -4,6 +4,8 @@ var BigNumber = require('bignumber.js');
 
 contract('Airline Tests', async (accounts) => {
 
+  const TEN_ETHER = web3.utils.toWei("10", "ether");
+
   var config;
   before('setup contract', async () => {
     config = await Test.Config(accounts);
@@ -20,46 +22,38 @@ contract('Airline Tests', async (accounts) => {
   
   });
 
-  it('(airline) cannot register an Airline using registerAirline() if it is not funded', async () => {
-    
-    // ARRANGE
-    let newAirline = accounts[2];
+  it('(airline) airline cannot participate in contract when it is not funded', async () => {        
+    let isRegistered = false;
 
-    // ACT
-    try {
-        let res = await config.flightSuretyApp.registerAirline.call(newAirline, {from: config.firstAirline});        
-        console.log("ONE: " + JSON.stringify(res));
+    try {      
+      isRegistered = await config.flightSuretyApp.registerAirline("Cebu Pacific Air", accounts[2], {from: config.firstAirline});      
     }
     catch(e) {
-        console.log("ERROR Exception: " + e);
+      console.log(e);
+    }                    
+    assert.equal(isRegistered, false, "Airline should not be registered");
+  });
+
+  it('(airline) can only participate in contract after submitting 10 ether', async () => {
+    
+    // ACT
+    await config.flightSuretyApp.fundAirline({from: config.firstAirline, value: TEN_ETHER, gasPrice: 0})
+
+    try {
+      await config.flightSuretyApp.registerAirline("Cebu Pacific Air", accounts[2], {from: config.firstAirline});
     }
-     let result = await config.flightSuretyData.isAirline.call(newAirline);     
-    console.log(result);
+    catch(e) {
+       console.log(e);
+    }
+    
+    let isFunded = await config.flightSuretyData.isAirlineFunded.call(config.firstAirline); 
+    let isRegistered = await config.flightSuretyData.isAirline.call(accounts[2]); 
+
     // ASSERT
-    assert.equal(result, false, "Airline should not be able to register another airline if it hasn't provided funding");
-
-  });  
-
-//   it('(airline) can only participate in contract after submitting 10 ether', async () => {
-//     ARRANGE
-//     const fundValue = web3.utils.toWei('10', "ether")
-//     let existingAirline = config.firstAirline;
-//     let newAirline = accounts[2];
-    
-//     ACT
-//     await config.flightSuretyData.fund({from: existingAirline, value: fundValue});
-//     try {
-//         await config.flightSuretyApp.registerAirline(newAirline, {from: existingAirline});
-//     }
-//     catch(e) {
-//         console.log("ERROR: " + e);
-//     }
-    
-//     let result = await config.flightSuretyData.isAirline.call(newAirline);
-    
-//     ASSERT
-//     expect(result).to.be.true;
-//   });
+    assert.equal(isFunded, true, "Airline should be funded");
+    assert.equal(isRegistered, true, "Airline should be registered");
+  });
+   
 
 //   it('Only existing airline may register new airline while less than 4 airlines are registered', async () => {
 

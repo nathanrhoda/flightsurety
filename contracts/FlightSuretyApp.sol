@@ -26,7 +26,7 @@ contract FlightSuretyApp {
     uint8 private constant STATUS_CODE_LATE_OTHER = 50;
 
     address private contractOwner;          // Account used to deploy contract
-    IFlightSuretyData flightSuretyData;
+    IFlightSuretyData dataContract;
 
     struct Flight {
         bool isRegistered;
@@ -65,6 +65,12 @@ contract FlightSuretyApp {
         _;
     }
 
+    modifier requireAirlineIsFunded(address addr)
+    {
+        require(dataContract.isAirlineFunded(addr), "Airline is not funded");
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -75,11 +81,11 @@ contract FlightSuretyApp {
     */
     constructor
                                 (
-                                    address dataContract
+                                    address dataContractAddress
                                 ) 
     {
         contractOwner = msg.sender;
-        flightSuretyData = IFlightSuretyData(dataContract);
+        dataContract = IFlightSuretyData(dataContractAddress);
     }
 
     /********************************************************************************************/
@@ -90,7 +96,7 @@ contract FlightSuretyApp {
                             public
                             returns(bool) 
     {
-        return flightSuretyData.isOperational();  
+        return dataContract.isOperational();  
     }
 
     /********************************************************************************************/
@@ -104,16 +110,33 @@ contract FlightSuretyApp {
     */   
     function registerAirline
                             (   
+                                string memory name,
                                 address account
                             )
                             external
+                            requireIsOperational
+                            requireAirlineIsFunded(msg.sender)
                             returns(bool success, uint256 votes)
     {
-        flightSuretyData.registerAirline(account);    
-        return (flightSuretyData.isAirline(account), 0);        
+        bool result = dataContract.registerAirline(name, account);    
+        //require(dataContract.isAirline(account) == true, "Airline should be registered");
+        //return (isRegistered, 0);        
+        return (result, 0);        
     }
 
+    function fundAirline(       
+                                                
+                        )
+                        external
+                        payable
+    {
+        require(msg.value == 10 ether, "Funded amount is not 10 ETh");    
 
+        address payable payableAddress = payable(address(uint160((address(dataContract)))));  
+        payableAddress.transfer(msg.value);
+
+        dataContract.fundAirline(msg.sender);
+    }
    /**
     * @dev Register a future flight for insuring.
     *
@@ -340,6 +363,8 @@ contract FlightSuretyApp {
 
 abstract contract IFlightSuretyData {
     function isOperational() external virtual returns(bool);
-    function registerAirline(address account) external virtual;
+    function registerAirline(string calldata name, address account) external virtual returns (bool);
     function isAirline(address account) external virtual returns(bool);    
+    function isAirlineFunded(address account) external virtual returns(bool);
+    function fundAirline(address account) external virtual;
 }

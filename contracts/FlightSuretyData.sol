@@ -11,17 +11,18 @@ contract FlightSuretyData {
     /********************************************************************************************/
 
     struct Airline {
-        string name;
         address addr;
+        string name;
         bool isRegistered;
-        uint funds;
+        bool isFunded;
     }
 
     address private contractOwner;                                      // Account used to deploy contract
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
 
     mapping(address=> uint256) private authorizedAccounts;
-    mapping(address=>Airline) private airlines;
+    mapping(address=>Airline) private airlines;    
+    address[] registeredAirlines = new address[](0);
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
@@ -32,12 +33,18 @@ contract FlightSuretyData {
     *      The deploying account becomes contractOwner
     */
     constructor
-                                (     
+                                (   
+                                    string memory name,  
                                     address firstAirline
                                 ) 
     {        
-        contractOwner = msg.sender;
-        registerAirline(firstAirline);
+        contractOwner = msg.sender;        
+        airlines[firstAirline] = Airline({
+                                    addr: firstAirline,
+                                    name: name,
+                                    isRegistered: true,
+                                    isFunded: false
+                                });
     }
 
     /********************************************************************************************/
@@ -91,10 +98,19 @@ contract FlightSuretyData {
                       view
                       returns(bool)
     {        
-        return airlines[account].isRegistered == true;
+        return airlines[account].isRegistered;
     }
 
-
+    function isAirlineFunded
+                      (
+                         address account
+                      )
+                      external
+                      view
+                      returns(bool)
+    {        
+        return airlines[account].isFunded == true;
+    }
     /** 
     * @dev Authorizes account to make use of the contract    
     */
@@ -149,31 +165,47 @@ contract FlightSuretyData {
     */   
     function registerAirline
                             (   
+                                string calldata name,
                                 address account
                             )
-                            internal                       
-                            requireIsOperational     
-                            requireContractOwner
+                            external  
+                            returns (bool)                                                 
     {
-        require(airlines[account].isRegistered == false, "Account has already been registered");
-
-        // airlines[account] = Airline({
-        //                     name: "Default",
-        //                     isRegistered: true,
-        //                     funds: 0
-        //                     });
-        Airline memory airline;
-        airline.name = "DEFAULT";
-        airline.isRegistered = true;
-        airline.funds = 0;
-      
-        airlines[account] = airline;    
+        require(airlines[account].isRegistered == false, "Account has already been registered");        
         
-        require(airlines[account].isRegistered == true, "Airline should be registered");        
-     
+        airlines[account] = Airline({
+                                        addr: account,
+                                        name: name,
+                                        isRegistered: true,
+                                        isFunded: false
+                                    });
+
+        return true;    
+        //return airlines[account].isRegistered == true;        
+        // Airline memory item;
+        // item.name = name;
+        // item.isRegistered = true;
+        // item.isFunded = false;              
+        // airlines[account] = item;
+        // registeredAirlines.push(account);
+        // require(airlines[account].isRegistered == true, "Airline should be registered");                
     }
 
+    function getRegisteredAirlines() external view returns(address[] memory) {
+        return registeredAirlines;
+    }
 
+    function fundAirline
+                        (  
+                           address account 
+                        )
+                        external
+                        requireIsOperational
+    {
+        this.isAirline(account);            
+        airlines[account].isFunded = true;        
+        require(this.isAirlineFunded(account), "Data Airline not funded");
+    }
    /**
     * @dev Buy insurance for a flight
     *
