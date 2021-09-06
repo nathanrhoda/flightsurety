@@ -118,9 +118,13 @@ contract FlightSuretyApp {
                             requireAirlineIsFunded(msg.sender)
                             returns(bool success, uint256 votes)
     {
-        bool result = dataContract.registerAirline(name, account);    
-        //require(dataContract.isAirline(account) == true, "Airline should be registered");
-        //return (isRegistered, 0);        
+        address[] memory registeredAirlines = dataContract.getRegisteredAirlines();
+        bool result = false;
+        if(registeredAirlines.length > 4) {
+            result = false;
+        } else {
+            result = dataContract.registerAirline(name, account);            
+        }
         return (result, 0);        
     }
 
@@ -262,9 +266,6 @@ contract FlightSuretyApp {
         return oracles[msg.sender].indexes;
     }
 
-
-
-
     // Called by oracle when a response is available to an outstanding request
     // For the response to be accepted, there must be a pending request that is open
     // and matches one of the three Indexes randomly assigned to the oracle at the
@@ -367,4 +368,5 @@ abstract contract IFlightSuretyData {
     function isAirline(address account) external virtual returns(bool);    
     function isAirlineFunded(address account) external virtual returns(bool);
     function fundAirline(address account) external virtual;
+    function getRegisteredAirlines() external view virtual returns(address[] memory);
 }

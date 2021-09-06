@@ -45,6 +45,7 @@ contract FlightSuretyData {
                                     isRegistered: true,
                                     isFunded: false
                                 });
+        registeredAirlines.push(firstAirline);
     }
 
     /********************************************************************************************/
@@ -179,16 +180,8 @@ contract FlightSuretyData {
                                         isRegistered: true,
                                         isFunded: false
                                     });
-
-        return true;    
-        //return airlines[account].isRegistered == true;        
-        // Airline memory item;
-        // item.name = name;
-        // item.isRegistered = true;
-        // item.isFunded = false;              
-        // airlines[account] = item;
-        // registeredAirlines.push(account);
-        // require(airlines[account].isRegistered == true, "Airline should be registered");                
+        registeredAirlines.push(account);
+        return true;                        
     }
 
     function getRegisteredAirlines() external view returns(address[] memory) {
