@@ -17,27 +17,11 @@ contract FlightSuretyApp {
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
 
-    // Flight status codees
-    uint8 private constant STATUS_CODE_UNKNOWN = 0;
-    uint8 private constant STATUS_CODE_ON_TIME = 10;
-    uint8 private constant STATUS_CODE_LATE_AIRLINE = 20;
-    uint8 private constant STATUS_CODE_LATE_WEATHER = 30;
-    uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
-    uint8 private constant STATUS_CODE_LATE_OTHER = 50;
-
     address private contractOwner;          // Account used to deploy contract
     IFlightSuretyData dataContract;
 
-    struct Flight {
-        bool isRegistered;
-        uint8 statusCode;
-        uint256 updatedTimestamp;        
-        address airline;
-    }
-    mapping(bytes32 => Flight) private flights;
     mapping(address => address[]) public consensusList;     
-
- 
+    
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
     /********************************************************************************************/
@@ -79,7 +63,7 @@ contract FlightSuretyApp {
         }
         _;
     }
-
+   
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -156,6 +140,7 @@ contract FlightSuretyApp {
                         )
                         external
                         payable
+                        requireIsOperational
     {
         require(msg.value == 10 ether, "Funded amount is not 10 ETh");    
 
@@ -169,11 +154,15 @@ contract FlightSuretyApp {
     *
     */  
     function registerFlight
-                                (
+                                (                                    
+                                    string memory flightNumber,
+                                    uint256 departureTime
                                 )
                                 external
-                                pure
-    {        
+                                requireIsOperational
+                                requireAirlineIsFunded(msg.sender)
+    {                         
+        dataContract.registerFlight(flightNumber, departureTime);       
     }
     
    /**
@@ -322,7 +311,6 @@ contract FlightSuretyApp {
         }
     }
 
-
     function getFlightKey
                         (
                             address airline,
@@ -391,4 +379,6 @@ abstract contract IFlightSuretyData {
     function isAirlineFunded(address account) external virtual returns(bool);
     function fundAirline(address account) external virtual;
     function getRegisteredAirlines() external view virtual returns(address[] memory);    
+
+    function registerFlight(string calldata flightNumber, uint256 departureTime) external virtual returns(bool);
 }

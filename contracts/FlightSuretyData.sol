@@ -10,6 +10,14 @@ contract FlightSuretyData {
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
 
+    // Flight status codees
+    uint8 private constant STATUS_CODE_UNKNOWN = 0;
+    uint8 private constant STATUS_CODE_ON_TIME = 10;
+    uint8 private constant STATUS_CODE_LATE_AIRLINE = 20;
+    uint8 private constant STATUS_CODE_LATE_WEATHER = 30;
+    uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
+    uint8 private constant STATUS_CODE_LATE_OTHER = 50;
+
     struct Airline {
         address addr;
         string name;
@@ -23,6 +31,15 @@ contract FlightSuretyData {
     mapping(address=> uint256) private authorizedAccounts;
     mapping(address=>Airline) private airlines;        
     address[] registeredAirlines = new address[](0);
+
+    struct Flight {
+        bool isRegistered;
+        uint8 statusCode;
+        uint256 updatedTimestamp;        
+        address airline;
+    }
+    mapping(bytes32 => Flight) private flights;
+    string[] registeredFlights = new string[](0);
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/    
@@ -261,6 +278,39 @@ contract FlightSuretyData {
                         returns(bytes32) 
     {
         return keccak256(abi.encodePacked(airline, flight, timestamp));
+    }
+
+    function registerFlight
+                            (
+                                string calldata flightNumber, 
+                                uint256 departureTime
+                            )
+                            external 
+                            returns(bool)
+    {
+        bytes32 flightKey = getFlightKey(msg.sender, flightNumber, departureTime);                        
+        require(flights[flightKey].isRegistered == false, "Flight has already been registered");
+
+        flights[flightKey] = Flight({ 
+                                        isRegistered: true,
+                                        statusCode: STATUS_CODE_UNKNOWN,
+                                        updatedTimestamp: departureTime,
+                                        airline: msg.sender
+                                    });         
+        
+        registeredFlights.push(flightNumber);
+        return true;
+    }
+
+    function getFlights
+                        (
+
+                        )
+                        external
+                        view
+                        returns(string[] memory)
+    {
+        return registeredFlights;
     }
 
     /**

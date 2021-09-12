@@ -25,12 +25,8 @@ var Config = async function(accounts) {
     let airlineName = "Ground Floor Airlines";
 
     let flightSuretyData = await FlightSuretyData.new(airlineName, firstAirline);
-    let flightSuretyApp = await FlightSuretyApp.new(flightSuretyData.address);
+    let flightSuretyApp = await FlightSuretyApp.new(flightSuretyData.address);    
 
-    // console.log("flightSuretyData.address: " + flightSuretyData.address);
-    // console.log("flightSuretyApp.address: " + flightSuretyApp.address);
-    // console.log("firstAirline: " + firstAirline);
-    
     return {
         owner: owner,
         firstAirline: firstAirline,
