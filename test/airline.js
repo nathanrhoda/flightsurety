@@ -120,7 +120,6 @@ contract('Airline Tests', async (accounts) => {
     await config.flightSuretyApp.registerAirline(airlineName, airline, {from: approvingAirline1});       
 
     result = await config.flightSuretyData.getRegisteredAirlines.call();                 
-    console.log("Airline Count: " + result.length);        
         
     //ASSERT    
     assert.equal(result.length, 5, "Consensus still not reached 5th airline not registered");        
