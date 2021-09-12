@@ -75,104 +75,55 @@ contract('Airline Tests', async (accounts) => {
 
   it('Registering a fifth airline does not register without 50% consensus ', async () => {
     // ARRANGE
-    let airline2 = accounts[6]
+    let airline2 = accounts[3]
     let airline2Name = "Airline 2";
 
-    let airline3 = accounts[3]
+    let airline3 = accounts[4]
     let airline3Name = "Airline 3";
 
-    let airline4 = accounts[4]
+    let airline4 = accounts[5]
     let airline4Name = "Airline 4";
 
-    let airline5 = accounts[5]
+    let airline5 = accounts[6]
     let airline5Name = "Airline 5";
     
     await config.flightSuretyApp.fundAirline({from: config.firstAirline, value: TEN_ETHER, gasPrice: 0})    
-    let result = await config.flightSuretyData.getRegisteredAirlines.call();                 
-    console.log("Start Count 1: " + result.length);        
 
     //ACT
     await config.flightSuretyApp.registerAirline(airline2Name, airline2, {from: config.firstAirline});
     await config.flightSuretyApp.fundAirline({from: airline2, value: TEN_ETHER, gasPrice: 0})
 
-    result = await config.flightSuretyData.getRegisteredAirlines.call();                 
-    console.log("Count 2: " + result.length);        
 
     await config.flightSuretyApp.registerAirline(airline3Name, airline3, {from: config.firstAirline});
     await config.flightSuretyApp.fundAirline({from: airline3, value: TEN_ETHER, gasPrice: 0})
 
-    result = await config.flightSuretyData.getRegisteredAirlines.call();                 
-    console.log("Count 3: " + result.length);        
-
     await config.flightSuretyApp.registerAirline(airline4Name, airline4, {from: config.firstAirline});
     await config.flightSuretyApp.fundAirline({from: airline4, value: TEN_ETHER, gasPrice: 0})
     
-    result = await config.flightSuretyData.getRegisteredAirlines.call();                 
-    console.log("Count 4: " + result.length);        
-
     await config.flightSuretyApp.registerAirline.call(airline5Name, airline5, {from: config.firstAirline});    
     await config.flightSuretyApp.fundAirline({from: airline5, value: TEN_ETHER, gasPrice: 0})
-
-    result = await config.flightSuretyData.getRegisteredAirlines.call();                 
-    console.log("Count 5: " + result.length);        
 
     //ASSERT    
     assert.equal(result.length, 4, "Only 4 airlines registered because consensus has not been reached");        
   }); 
 
-  // it('Registering a fifth airline successfully when 50% consensus is reached', async () => {
+  it('Registering a fifth airline successfully when 50% consensus is reached', async () => {
     
-  //   // ARRANGE
-  //   let airline2 = accounts[3]
-  //   let airline2Name = "Airline 2";
+    // ARRANGE
+    let airline5 = accounts[6]
+    let airline5Name = "Airline 5";    
+                    
+    let result = await config.flightSuretyData.getRegisteredAirlines.call();                 
+    console.log("Start Count: " + result.length);        
 
-  //   let airline3 = accounts[4]
-  //   let airline3Name = "Airline 3";
+    //ACT
+    await config.flightSuretyApp.registerAirline(airline5Name, airline5, {from: config.firstAirline});
+    await config.flightSuretyApp.fundAirline({from: airline5, value: TEN_ETHER, gasPrice: 0})
 
-  //   let airline4 = accounts[5]
-  //   let airline4Name = "Airline 4";
-
-  //   let airline5 = accounts[6]
-  //   let airline5Name = "Airline 5";
-
-  //   // let result = await config.flightSuretyData.getRegisteredAirlines.call();                 
-  //   await config.flightSuretyApp.fundAirline({from: config.firstAirline, value: TEN_ETHER, gasPrice: 0})
-    
-  //   let result = await config.flightSuretyData.getRegisteredAirlines.call();                 
-  //   console.log("Start Count: " + result.length);        
-
-  //   //ACT
-  //   await registerAndFundAirlines(airline2Name, airline2, config.firstAirline);
-  //   // await config.flightSuretyApp.registerAirline(airline2Name, airline2, {from: config.firstAirline});
-  //   // await config.flightSuretyApp.fundAirline({from: airline2, value: TEN_ETHER, gasPrice: 0})
-
-  //   result = await config.flightSuretyData.getRegisteredAirlines.call();                 
-  //   console.log("Count 1: " + result.length);
-
-  //   await config.flightSuretyApp.registerAirline(airline3Name, airline3, {from: config.firstAirline});
-  //   await config.flightSuretyApp.fundAirline({from: airline3, value: TEN_ETHER, gasPrice: 0})
-
-  //   result = await config.flightSuretyData.getRegisteredAirlines.call();                 
-  //   console.log("Count 2: " + result.length);
-
-  //   let register4th = await config.flightSuretyApp.registerAirline.call(airline4Name, airline4, {from: config.firstAirline});        
-  //   await config.flightSuretyApp.fundAirline({from: airline4, value: TEN_ETHER, gasPrice: 0})
-    
-  //   result = await config.flightSuretyData.getRegisteredAirlines.call();                 
-  //   console.log("Count 3: " + result.length);
-
-  //   let is4thAirlineRegistered = register4th[0];    
+    result = await config.flightSuretyData.getRegisteredAirlines.call();                 
+    console.log("Count : " + result.length);
         
-  //   await config.flightSuretyApp.registerAirline.call(airline5Name, airline5, {from: config.firstAirline});    
-  //   await config.flightSuretyApp.fundAirline({from: airline5, value: TEN_ETHER, gasPrice: 0})
-
-  //   result = await config.flightSuretyData.getRegisteredAirlines.call();                 
-  //   console.log("Count 4: " + result.length);
-    
-    
-
-  //   //ASSERT
-  //   assert.equal(is4thAirlineRegistered, true, "4th Airline registered should register without issues");
-  //   assert.equal(result.length, 4, "Only 4 airlines registered because consensus has not been reached");        
-  // }); 
+    //ASSERT    
+    assert.equal(result.length, 5, "Consensus still not reached 5th airline not registered");        
+  }); 
 });
