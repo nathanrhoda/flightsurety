@@ -120,7 +120,7 @@ contract FlightSuretyApp {
     {
         address[] memory registeredAirlines = dataContract.getRegisteredAirlines();
         bool result = false;
-        if(registeredAirlines.length > 4) {
+        if(registeredAirlines.length > 3) {
             result = false;
         } else {
             result = dataContract.registerAirline(name, account);            
