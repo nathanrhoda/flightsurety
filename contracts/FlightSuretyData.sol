@@ -21,7 +21,7 @@ contract FlightSuretyData {
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
 
     mapping(address=> uint256) private authorizedAccounts;
-    mapping(address=>Airline) private airlines;    
+    mapping(address=>Airline) private airlines;        
     address[] registeredAirlines = new address[](0);
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
@@ -180,7 +180,7 @@ contract FlightSuretyData {
                                         isRegistered: true,
                                         isFunded: false
                                     });
-        registeredAirlines.push(account);
+        registeredAirlines.push(account);        
         return true;                        
     }
 

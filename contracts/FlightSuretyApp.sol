@@ -35,6 +35,7 @@ contract FlightSuretyApp {
         address airline;
     }
     mapping(bytes32 => Flight) private flights;
+    mapping(address => address[]) public consensusList;     
 
  
     /********************************************************************************************/
@@ -71,6 +72,14 @@ contract FlightSuretyApp {
         _;
     }
 
+    modifier requireFirstTimeRegisteringAirline(address addr)
+    {        
+        for(uint i=0; i<consensusList[addr].length; i++){
+            require(msg.sender != consensusList[addr][i], "Caller has already registered this airline");
+        }
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -86,6 +95,7 @@ contract FlightSuretyApp {
     {
         contractOwner = msg.sender;
         dataContract = IFlightSuretyData(dataContractAddress);
+        consensusList[contractOwner] = new address[](0);        
     }
 
     /********************************************************************************************/
@@ -102,8 +112,15 @@ contract FlightSuretyApp {
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
+    function getConsensus(address addr) 
+                        external          
+                        view                                      
+                        returns (address[] memory, uint)                    
+    {                        
+        return (consensusList[addr], consensusList[addr].length);                
+    }
 
-  
+
    /**
     * @dev Add an airline to the registration queue
     *
@@ -116,16 +133,29 @@ contract FlightSuretyApp {
                             external
                             requireIsOperational
                             requireAirlineIsFunded(msg.sender)
-                            returns(bool success, uint256 votes)
-    {
+                            requireFirstTimeRegisteringAirline(account)
+                            returns(bool success, uint256 votes, uint256 totalAirlines, address addr)
+    {       
         address[] memory registeredAirlines = dataContract.getRegisteredAirlines();
+        uint consensusRequiered = registeredAirlines.length / 2;
+
         bool result = false;
-        if(registeredAirlines.length > 3) {
-            result = false;
+        if(registeredAirlines.length > 3) {                   
+            // if(consensusList[account].length == 0){
+            //     consensusList[account] = new address[](0);        
+            // }                 
+            
+            consensusList[account].push(msg.sender);
+            if(consensusList[account].length < consensusRequiered) {                
+                return (result, uint256(consensusList[account].length), registeredAirlines.length, msg.sender);                                      
+            } else {
+                result = dataContract.registerAirline(name, account); 
+                return (result, 111, registeredAirlines.length, msg.sender);                    
+            }
         } else {
             result = dataContract.registerAirline(name, account);            
         }
-        return (result, 0);        
+        return (result, uint(consensusList[account].length), registeredAirlines.length, msg.sender);        
     }
 
     function fundAirline(       
@@ -368,5 +398,5 @@ abstract contract IFlightSuretyData {
     function isAirline(address account) external virtual returns(bool);    
     function isAirlineFunded(address account) external virtual returns(bool);
     function fundAirline(address account) external virtual;
-    function getRegisteredAirlines() external view virtual returns(address[] memory);
+    function getRegisteredAirlines() external view virtual returns(address[] memory);    
 }
