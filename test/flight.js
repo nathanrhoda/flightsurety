@@ -8,6 +8,8 @@ contract('Flight Tests', async (accounts) => {
       });
 
       let TEN_ETHER = web3.utils.toWei("10", "ether");
+      let VALID_INSURANCE_AMOUNT = web3.utils.toWei("0.9", "ether");
+      let INVALID_INSURANCE_AMOUNT = web3.utils.toWei("2", "ether");
 
       let airline1 = accounts[3];
       let airline1Name = "BAA";
@@ -63,9 +65,31 @@ contract('Flight Tests', async (accounts) => {
       });
 
       it(`(flight) passenger may buy insurance for up to 1 ether`,  async () => {
-        assert.equal(true, false);
+        // ACT
+        await config.flightSuretyApp.buyInsurance(flight1.number, {from: accounts[9], value: VALID_INSURANCE_AMOUNT})
+
+        // ASSERT
+        let response = await config.flightSuretyData.getInsurance(flightNumber);
+
+        assert.equal(response[0], true, "Should have insurance for this flight");
       });
 
+      
+      it(`(flight) passenger may not buy insurance if more than 1 ether is supplied`,  async () => {
+        // ACT
+        let hasInsurance = false;
+        try {
+          await config.flightSuretyApp.buyInsurance(flight1.number, {from: accounts[9], value: INVALID_INSURANCE_AMOUNT})          
+        } catch {
+          console.log("Invalid amount supplied for insurance");
+        }
+
+        // ASSERT
+        let response = await config.flightSuretyData.getInsurance(flightNumber);
+
+        assert.equal(response[0], true, "Should have insurance for this flight");
+      });
+      
       // it(`(flight) if flight is delayed due to airline fault, passenger receives 1.5X the amount they paid`, async () => {
       //   assert.equal(true, false);
       // });

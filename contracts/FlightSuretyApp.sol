@@ -164,6 +164,24 @@ contract FlightSuretyApp {
     {                         
         dataContract.registerFlight(flightNumber, departureTime);       
     }
+
+    function buyInsurance
+                    (
+                        address airline,
+                        string memory flightNumber,
+                        uint256 departureTime                            
+                    )
+                    external
+                    payable
+                    requireIsOperational
+    {
+        require(msg.value > 1 ether, "Funded amount is must be less than 1 ETH");    
+        
+        address payable payableAddress = payable(address(uint160((address(dataContract)))));  
+        payableAddress.transfer(msg.value);
+
+        dataContract.buy(airline, flightNumber, departureTime);
+    }
     
    /**
     * @dev Called after oracle has updated flight status
@@ -200,8 +218,7 @@ contract FlightSuretyApp {
         flightResponse.requester = msg.sender;        
 
         emit OracleRequest(index, airline, flight, timestamp);
-    } 
-
+    }     
 
 // region ORACLE MANAGEMENT
 
@@ -381,4 +398,5 @@ abstract contract IFlightSuretyData {
     function getRegisteredAirlines() external view virtual returns(address[] memory);    
 
     function registerFlight(string calldata flightNumber, uint256 departureTime) external virtual returns(bool);
+    function buy(address airline, string calldata flightNumber, uint256 departureTime) external virtual returns(bool);
 }

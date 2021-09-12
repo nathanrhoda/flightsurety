@@ -40,6 +40,14 @@ contract FlightSuretyData {
     }
     mapping(bytes32 => Flight) private flights;
     string[] registeredFlights = new string[](0);
+
+    struct Insurance {
+        address passenger;
+        bool isCredited;
+        uint256 amount;
+    }
+
+    mapping(bytes32 => Insurance[]) insuranceCover;
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/    
@@ -97,6 +105,12 @@ contract FlightSuretyData {
     modifier requireCallerAuthorized()
     {
         require(authorizedAccounts[msg.sender] == 1, "Caller is not authorized");
+        _;        
+    }
+
+    modifier requireAirlineFunded(address account)
+    {
+        require(airlines[account].isFunded == true);
         _;
     }
 
@@ -220,13 +234,20 @@ contract FlightSuretyData {
     *
     */   
     function buy
-                            (                             
-                            )
-                            external
-                            payable
-                            requireIsOperational
+                        (
+                            address airline, 
+                            string calldata flightNumber, 
+                            uint256 departureTime
+                        ) 
+                        external
+                        requireIsOperational
+                        requireAirlineFunded(airline)
+                        returns(bool)
     {
-
+        // Make sure you dont already have cover
+        // Go on from here
+        bytes32 flightKey = getFlightKey(msg.sender, flightNumber, departureTime);                        
+        require(insuranceCover[flightKey][0].passenger != msg.sender, "Passenger cannot already have insurance cover");
     }
 
     /**
@@ -312,6 +333,7 @@ contract FlightSuretyData {
     {
         return registeredFlights;
     }
+
 
     /**
     * @dev Fallback function for funding smart contract.
