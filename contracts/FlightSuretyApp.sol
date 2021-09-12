@@ -173,8 +173,7 @@ contract FlightSuretyApp {
                                 )
                                 external
                                 pure
-    {
-
+    {        
     }
     
    /**
