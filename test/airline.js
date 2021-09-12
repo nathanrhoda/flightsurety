@@ -114,21 +114,10 @@ contract('Airline Tests', async (accounts) => {
     let airlineName = "Airline 7";    
 
     let approvingAirline1 = accounts[3];
-    let approvingAirline2 = accounts[4];
-                        
-    let result = await config.flightSuretyData.getRegisteredAirlines.call();                 
-    console.log("Start Count: " + result.length);        
-    
+                            
     //ACT
-    await config.flightSuretyApp.registerAirline(airlineName, airline, {from: config.firstAirline});
-    let consensusResponse = await config.flightSuretyApp.getConsensus.call(airline);
-    console.log("Consensus Address: " + consensusResponse[0]);           
-    console.log("Consensus Count: " + consensusResponse[1]);           
-
-    await config.flightSuretyApp.registerAirline(airlineName, airline, {from: approvingAirline1});   
-    consensusResponse = await config.flightSuretyApp.getConsensus.call(airline);
-    console.log("Consensus Address: " + consensusResponse[0]);           
-    console.log("Consensus Count: " + consensusResponse[1]);        
+    await config.flightSuretyApp.registerAirline(airlineName, airline, {from: config.firstAirline});    
+    await config.flightSuretyApp.registerAirline(airlineName, airline, {from: approvingAirline1});       
 
     result = await config.flightSuretyData.getRegisteredAirlines.call();                 
     console.log("Airline Count: " + result.length);        
@@ -136,33 +125,4 @@ contract('Airline Tests', async (accounts) => {
     //ASSERT    
     assert.equal(result.length, 5, "Consensus still not reached 5th airline not registered");        
   }); 
-
-  // it('Test to make sure you one address cannot register same airline twice ', async () => {
-    
-  //   // ARRANGE
-  //   let airline = accounts[7]
-  //   let airlineName = "Airline 7";    
-
-  //   let approvingAirline1 = accounts[3];
-  //   let approvingAirline2 = accounts[4];
-                        
-  //   let result = await config.flightSuretyData.getRegisteredAirlines.call();                 
-  //   console.log("Start Count: " + result.length);        
-
-  //   //ACT
-  //   let response = await config.flightSuretyApp.registerAirline.call(airlineName, airline, {from: config.firstAirline});
-  //   console.log(response);        
-
-  //   response = await config.flightSuretyApp.registerAirline.call(airlineName, airline, {from: approvingAirline1});    
-  //   console.log(response);        
-
-  //   response = await config.flightSuretyApp.registerAirline.call(airlineName, airline, {from: approvingAirline2});
-  //   console.log(response);        
-
-  //   result = await config.flightSuretyData.getRegisteredAirlines.call();                 
-  //   console.log("Count : " + result.length);
-        
-  //   //ASSERT    
-  //   assert.equal(result.length, 5, "Consensus still not reached 5th airline not registered");        
-  // }); 
 });

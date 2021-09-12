@@ -134,28 +134,21 @@ contract FlightSuretyApp {
                             requireIsOperational
                             requireAirlineIsFunded(msg.sender)
                             requireFirstTimeRegisteringAirline(account)
-                            returns(bool success, uint256 votes, uint256 totalAirlines, address addr)
+                            returns(bool success, uint256 votes)
     {       
         address[] memory registeredAirlines = dataContract.getRegisteredAirlines();
         uint consensusRequiered = registeredAirlines.length / 2;
 
         bool result = false;
-        if(registeredAirlines.length > 3) {                   
-            // if(consensusList[account].length == 0){
-            //     consensusList[account] = new address[](0);        
-            // }                 
-            
+        if(registeredAirlines.length > 3) {                               
             consensusList[account].push(msg.sender);
-            if(consensusList[account].length < consensusRequiered) {                
-                return (result, uint256(consensusList[account].length), registeredAirlines.length, msg.sender);                                      
-            } else {
+            if(consensusList[account].length >= consensusRequiered) {                
                 result = dataContract.registerAirline(name, account); 
-                return (result, 111, registeredAirlines.length, msg.sender);                    
-            }
+            }             
         } else {
             result = dataContract.registerAirline(name, account);            
         }
-        return (result, uint(consensusList[account].length), registeredAirlines.length, msg.sender);        
+        return (result, uint(consensusList[account].length));        
     }
 
     function fundAirline(       
