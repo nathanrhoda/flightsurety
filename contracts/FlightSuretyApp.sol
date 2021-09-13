@@ -175,12 +175,8 @@ contract FlightSuretyApp {
                     payable
                     requireIsOperational
     {
-        require(msg.value > 1 ether, "Funded amount is must be less than 1 ETH");    
-        
-        address payable payableAddress = payable(address(uint160((address(dataContract)))));  
-        payableAddress.transfer(msg.value);
-
-        dataContract.buy(airline, flightNumber, departureTime);
+        bytes32 flightKey = getFlightKey(airline, flightNumber, departureTime);
+        dataContract.buy(flightKey);
     }
     
    /**
@@ -335,7 +331,7 @@ contract FlightSuretyApp {
                             uint256 timestamp
                         )
                         pure
-                        internal
+                        public
                         returns(bytes32) 
     {
         return keccak256(abi.encodePacked(airline, flight, timestamp));
@@ -398,5 +394,5 @@ abstract contract IFlightSuretyData {
     function getRegisteredAirlines() external view virtual returns(address[] memory);    
 
     function registerFlight(string calldata flightNumber, uint256 departureTime) external virtual returns(bool);
-    function buy(address airline, string calldata flightNumber, uint256 departureTime) external virtual returns(bool);
+    function buy(bytes32 flightKey) external virtual;
 }

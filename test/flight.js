@@ -64,32 +64,34 @@ contract('Flight Tests', async (accounts) => {
         assert.equal(response.length, 3, "All flights were not registered")
       });
 
-      it(`(flight) passenger may buy insurance for up to 1 ether`,  async () => {
+      it(`(flight) passenger may not buy insurance if more than 1 ether is supplied`,  async () => {        
+        // ARRANGE 
+        let flightKey = await config.flightSuretyApp.getFlightKey.call(flight1.airline, flight1.number, flight1.departureTime);
+
         // ACT
-        await config.flightSuretyApp.buyInsurance(flight1.number, {from: accounts[9], value: VALID_INSURANCE_AMOUNT})
-
-        // ASSERT
-        let response = await config.flightSuretyData.getInsurance(flightNumber);
-
-        assert.equal(response[0], true, "Should have insurance for this flight");
-      });
-
-      
-      it(`(flight) passenger may not buy insurance if more than 1 ether is supplied`,  async () => {
-        // ACT
-        let hasInsurance = false;
         try {
-          await config.flightSuretyApp.buyInsurance(flight1.number, {from: accounts[9], value: INVALID_INSURANCE_AMOUNT})          
-        } catch {
+          await config.flightSuretyApp.buyInsurance(flight1.airline, flight1.number, flight1.departureTime, {from: accounts[8], value: INVALID_INSURANCE_AMOUNT})                    
+        } catch {          
           console.log("Invalid amount supplied for insurance");
         }
 
         // ASSERT
-        let response = await config.flightSuretyData.getInsurance(flightNumber);
+        let response = await config.flightSuretyData.getInsurance.call(flightKey, {from: accounts[8]});        
+        assert.equal(response[0], false, "Should not have insurance for this flight");
+      });
 
+      it(`(flight) passenger may buy insurance for up to 1 ether`,  async () => {
+        // ACT
+        await config.flightSuretyApp.buyInsurance(flight1.airline, flight1.number, flight1.departureTime, {from: accounts[9], value: VALID_INSURANCE_AMOUNT})
+        let flightKey = await config.flightSuretyApp.getFlightKey.call(flight1.airline, flight1.number, flight1.departureTime);
+
+        // ASSERT
+        let response = await config.flightSuretyData.getInsurance.call(flightKey, {from: accounts[9]});
+        console.log(response);
         assert.equal(response[0], true, "Should have insurance for this flight");
       });
-      
+            
+
       // it(`(flight) if flight is delayed due to airline fault, passenger receives 1.5X the amount they paid`, async () => {
       //   assert.equal(true, false);
       // });

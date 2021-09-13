@@ -114,10 +114,32 @@ contract FlightSuretyData {
         _;
     }
 
+    modifier requirePassengerDoesNotHaveInsuranceCover(bytes32 flightKey)
+    {
+        bool hasCover = PassengerHasInsuranceCover(flightKey);
+        require(hasCover == false, "Passenger already has insurance cover");
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
-
+    function PassengerHasInsuranceCover
+                                (
+                                    bytes32 flightKey
+                                )
+                                internal
+                                view
+                                returns (bool)                                             
+    {
+        bool hasCover = false;
+        for(uint i=0; i<insuranceCover[flightKey].length; i++) {
+            if(insuranceCover[flightKey][i].passenger == msg.sender) {
+                hasCover = true;
+            }
+        }
+        return hasCover;
+    }                                
     /**
     * @dev Checks to see if calling account is a airline
     */
@@ -235,21 +257,46 @@ contract FlightSuretyData {
     */   
     function buy
                         (
-                            address airline, 
-                            string calldata flightNumber, 
-                            uint256 departureTime
+                           bytes32 flightKey
                         ) 
                         external
-                        requireIsOperational
-                        requireAirlineFunded(airline)
-                        returns(bool)
+                        payable
+                        requireIsOperational    
+                        requirePassengerDoesNotHaveInsuranceCover(flightKey)                                                                    
     {
-        // Make sure you dont already have cover
-        // Go on from here
-        bytes32 flightKey = getFlightKey(msg.sender, flightNumber, departureTime);                        
-        require(insuranceCover[flightKey][0].passenger != msg.sender, "Passenger cannot already have insurance cover");
+        require(msg.value < 1 ether, "Funded amount must be less than 1 ETH");    
+        
+        address payable payableAddress = payable(address(uint160((address(this)))));  
+        payableAddress.transfer(msg.value);
+
+        insuranceCover[flightKey].push(Insurance({
+                                                    passenger: msg.sender,
+                                                    isCredited: true,
+                                                    amount: msg.value
+                                                }));        
     }
 
+    function getInsurance
+                        (
+                            bytes32 flightKey
+                        )
+                        external
+                        view
+                        requireIsOperational
+                        returns(bool hasInsurnace, address passenger, bool isCredited, uint256 amount)
+    {
+        Insurance memory insurance;
+        bool hasInsurance = false;
+        // Something not right with the checking if passenger has insurance logic
+        for(uint i=0; i<insuranceCover[flightKey].length; i++) {
+            if(insuranceCover[flightKey][i].passenger == msg.sender) {
+                insurance = insuranceCover[flightKey][i];    
+                hasInsurance = true;            
+            }
+        }
+        
+        return (hasInsurance, insurance.passenger, insurance.isCredited, insurance.amount);
+    }
     /**
      *  @dev Credits payouts to insurees
     */
