@@ -275,7 +275,7 @@ contract FlightSuretyData {
 
         insuranceCover[flightKey].push(Insurance({
                                                     passenger: passenger,
-                                                    isCredited: true,
+                                                    isCredited: false,
                                                     amount: amount
                                                 }));        
     }
