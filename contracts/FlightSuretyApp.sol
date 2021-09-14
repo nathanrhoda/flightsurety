@@ -169,14 +169,14 @@ contract FlightSuretyApp {
                     (
                         address airline,
                         string memory flightNumber,
-                        uint256 departureTime                            
+                        uint256 departureTime                        
                     )
                     external
                     payable
                     requireIsOperational
     {
         bytes32 flightKey = getFlightKey(airline, flightNumber, departureTime);
-        dataContract.buy(flightKey);
+        dataContract.buy(flightKey, msg.sender, msg.value);
     }
     
    /**
@@ -394,5 +394,5 @@ abstract contract IFlightSuretyData {
     function getRegisteredAirlines() external view virtual returns(address[] memory);    
 
     function registerFlight(string calldata flightNumber, uint256 departureTime) external virtual returns(bool);
-    function buy(bytes32 flightKey) external virtual;
+    function buy(bytes32 flightKey, address passenger, uint256 amount) external virtual;
 }

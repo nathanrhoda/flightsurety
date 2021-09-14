@@ -114,9 +114,9 @@ contract FlightSuretyData {
         _;
     }
 
-    modifier requirePassengerDoesNotHaveInsuranceCover(bytes32 flightKey)
-    {
-        bool hasCover = PassengerHasInsuranceCover(flightKey);
+    modifier requirePassengerDoesNotHaveInsuranceCover(bytes32 flightKey, address passenger)
+    {        
+        bool hasCover = PassengerHasInsuranceCover(flightKey, passenger);
         require(hasCover == false, "Passenger already has insurance cover");
         _;
     }
@@ -126,7 +126,8 @@ contract FlightSuretyData {
     /********************************************************************************************/
     function PassengerHasInsuranceCover
                                 (
-                                    bytes32 flightKey
+                                    bytes32 flightKey,
+                                    address passenger
                                 )
                                 internal
                                 view
@@ -134,7 +135,7 @@ contract FlightSuretyData {
     {
         bool hasCover = false;
         for(uint i=0; i<insuranceCover[flightKey].length; i++) {
-            if(insuranceCover[flightKey][i].passenger == msg.sender) {
+            if(insuranceCover[flightKey][i].passenger == passenger) {
                 hasCover = true;
             }
         }
@@ -257,22 +258,25 @@ contract FlightSuretyData {
     */   
     function buy
                         (
-                           bytes32 flightKey
+                           bytes32 flightKey,
+                           address passenger, 
+                           uint256 amount      
                         ) 
                         external
                         payable
                         requireIsOperational    
-                        requirePassengerDoesNotHaveInsuranceCover(flightKey)                                                                    
+                        requirePassengerDoesNotHaveInsuranceCover(flightKey, passenger)                                                                    
     {
-        require(msg.value < 1 ether, "Funded amount must be less than 1 ETH");    
+        
+        require(amount < 1 ether, "Funded amount must be less than 1 ETH");    
         
         address payable payableAddress = payable(address(uint160((address(this)))));  
-        payableAddress.transfer(msg.value);
+        payableAddress.transfer(amount);
 
         insuranceCover[flightKey].push(Insurance({
-                                                    passenger: msg.sender,
+                                                    passenger: passenger,
                                                     isCredited: true,
-                                                    amount: msg.value
+                                                    amount: amount
                                                 }));        
     }
 
@@ -281,13 +285,14 @@ contract FlightSuretyData {
                             bytes32 flightKey
                         )
                         external
-                        view
+                        
+                        payable
                         requireIsOperational
                         returns(bool hasInsurnace, address passenger, bool isCredited, uint256 amount)
     {
         Insurance memory insurance;
         bool hasInsurance = false;
-        // Something not right with the checking if passenger has insurance logic
+        
         for(uint i=0; i<insuranceCover[flightKey].length; i++) {
             if(insuranceCover[flightKey][i].passenger == msg.sender) {
                 insurance = insuranceCover[flightKey][i];    
@@ -295,7 +300,7 @@ contract FlightSuretyData {
             }
         }
         
-        return (hasInsurance, insurance.passenger, insurance.isCredited, insurance.amount);
+        return (hasInsurance, insurance.passenger, insurance.isCredited, insurance.amount);        
     }
     /**
      *  @dev Credits payouts to insurees

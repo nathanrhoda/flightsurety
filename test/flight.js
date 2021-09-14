@@ -68,26 +68,27 @@ contract('Flight Tests', async (accounts) => {
         // ARRANGE 
         let flightKey = await config.flightSuretyApp.getFlightKey.call(flight1.airline, flight1.number, flight1.departureTime);
 
+        console.log(INVALID_INSURANCE_AMOUNT);
         // ACT
         try {
-          await config.flightSuretyApp.buyInsurance(flight1.airline, flight1.number, flight1.departureTime, {from: accounts[8], value: INVALID_INSURANCE_AMOUNT})                    
+          await config.flightSuretyApp.buyInsurance(flight1.airline, flight1.number, flight1.departureTime, {from: accounts[9], value: INVALID_INSURANCE_AMOUNT})                    
         } catch {          
           console.log("Invalid amount supplied for insurance");
         }
 
         // ASSERT
-        let response = await config.flightSuretyData.getInsurance.call(flightKey, {from: accounts[8]});        
+        let response = await config.flightSuretyData.getInsurance.call(flightKey, {from: accounts[9], value: INVALID_INSURANCE_AMOUNT});             
+        
         assert.equal(response[0], false, "Should not have insurance for this flight");
       });
 
       it(`(flight) passenger may buy insurance for up to 1 ether`,  async () => {
         // ACT
-        await config.flightSuretyApp.buyInsurance(flight1.airline, flight1.number, flight1.departureTime, {from: accounts[9], value: VALID_INSURANCE_AMOUNT})
-        let flightKey = await config.flightSuretyApp.getFlightKey.call(flight1.airline, flight1.number, flight1.departureTime);
+        await config.flightSuretyApp.buyInsurance(flight2.airline, flight2.number, flight2.departureTime, {from: accounts[8], value: VALID_INSURANCE_AMOUNT})
+        let flightKey = await config.flightSuretyApp.getFlightKey.call(flight2.airline, flight2.number, flight2.departureTime);
 
         // ASSERT
-        let response = await config.flightSuretyData.getInsurance.call(flightKey, {from: accounts[9]});
-        console.log(response);
+        let response = await config.flightSuretyData.getInsurance.call(flightKey, {from: accounts[8]});        
         assert.equal(response[0], true, "Should have insurance for this flight");
       });
             
