@@ -11,6 +11,7 @@ contract('Flight Tests', async (accounts) => {
       let VALID_INSURANCE_AMOUNT = web3.utils.toWei("0.9", "ether");
       let INVALID_INSURANCE_AMOUNT = web3.utils.toWei("2", "ether");
       let INSURANCE_MULTIPLIER = 1.5;
+      let STATUS_CODE_LATE_AIRLINE = 20;
 
       let airline1 = accounts[3];
       let airline1Name = "BAA";
@@ -73,7 +74,7 @@ contract('Flight Tests', async (accounts) => {
         try {
           await config.flightSuretyApp.buyInsurance(flight1.airline, flight1.number, flight1.departureTime, {from: accounts[9], value: INVALID_INSURANCE_AMOUNT})                    
         } catch {          
-          console.log("Invalid amount supplied for insurance");
+          //console.log("Invalid amount supplied for insurance");
         }
 
         // ASSERT
@@ -84,8 +85,8 @@ contract('Flight Tests', async (accounts) => {
 
       it(`(passenger) may buy insurance for up to 1 ether`,  async () => {
         // ACT
-        await config.flightSuretyApp.buyInsurance(flight2.airline, flight2.number, flight2.departureTime, {from: accounts[8], value: VALID_INSURANCE_AMOUNT})
-        let flightKey = await config.flightSuretyApp.getFlightKey.call(flight2.airline, flight2.number, flight2.departureTime);
+        await config.flightSuretyApp.buyInsurance(flight1.airline, flight1.number, flight1.departureTime, {from: accounts[8], value: VALID_INSURANCE_AMOUNT})
+        let flightKey = await config.flightSuretyApp.getFlightKey.call(flight1.airline, flight1.number, flight1.departureTime);
 
         // ASSERT
         let response = await config.flightSuretyData.getInsurance.call(flightKey, {from: accounts[8]});        
@@ -94,18 +95,34 @@ contract('Flight Tests', async (accounts) => {
             
 
       it(`(passenger) if flight is delayed due to airline fault, passenger receives 1.5X the amount they paid`, async () => {
-        // Create flight 
-        // Buy Insurance 
-        // Simulate airline fault (set flight status = STATUS_CODE_LATE_AIRLINE / 20)                
-        // credit passenger account with 1.5 the amount they paid
-        // Check to make sure credit amount equals 1.5 * amount already added
+        // ARRANGE
+        var expectedPayout = VALID_INSURANCE_AMOUNT * INSURANCE_MULTIPLIER;        
+        await config.flightSuretyApp.buyInsurance(flight2.airline, flight2.number, flight2.departureTime, {from: accounts[8], value: VALID_INSURANCE_AMOUNT})
+        let flightKey = await config.flightSuretyApp.getFlightKey.call(flight2.airline, flight2.number, flight2.departureTime);
+
+        // ACT
+        await config.flightSuretyApp.processFlightStatus(flight2.airline, flight2.number, flight2.departureTime, STATUS_CODE_LATE_AIRLINE);        
+        let response = await config.flightSuretyData.getCredits.call(accounts[8]);  
+                  
+        // ASSERT        
+        assert.equal(BigNumber(response).toString(), expectedPayout, "Passenger payout is not 1.5 the original amount");
       });
 
        it(`(passenger) can withdraw any funds owed to them as a result of receiving credit for insurance payout`, async () => {
-        // Using above flight and passenger        
-        // Check Balance
-        // Withdraw credit
-        // Check credit balance to make sure it is zero
+        // ARRANGE
+        let withdrawalAccount = accounts[8];
+        let originalBalance = await web3.eth.getBalance(withdrawalAccount)
+        let credit = BigNumber(await config.flightSuretyData.getCredits.call(accounts[8])).toString();  
+
+        // ACT
+        await config.flightSuretyApp.withdraw({from: withdrawalAccount, gasPrice: 0});        
+        
+        let creditAfterWithdrawal = BigNumber(await config.flightSuretyData.getCredits.call(accounts[8])).toString();  
+        let currentBalance = await web3.eth.getBalance(withdrawalAccount)
+        
+        // ASSERT
+        assert.equal(creditAfterWithdrawal, 0, "Passenger should not have a credit");        
+        assert.equal(currentBalance-credit, originalBalance, "Current balance does not equal original balance + expected credit");
        });
 
       it(`(passenger) cannot withdraw same amount twice`, async () => {
