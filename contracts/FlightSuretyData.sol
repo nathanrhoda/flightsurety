@@ -350,6 +350,7 @@ contract FlightSuretyData {
     {
         require(passenger == tx.origin, "Contracts not allowed");
         uint256 amount = passengerCreditFlights[passenger];
+        require(amount > 0, "No Credits to payout");
         passengerCreditFlights[passenger] = 0;
                 
         delete passengerCreditFlights[passenger];

@@ -126,17 +126,22 @@ contract('Flight Tests', async (accounts) => {
        });
 
       it(`(passenger) cannot withdraw same amount twice`, async () => {
-        // Using above flight and passenger     
-        // Try and withdraw same amount again
-        // Should throw an error catch and log
-        // Check bool to make sure error was thrown
-      });
+        // ARRANGE
+        let withdrawalAccount = accounts[8];
+        let withdrawBlocked = false;
+        let originalBalance = await web3.eth.getBalance(withdrawalAccount);
 
-      it(`(passenger) cannot withdraw if no credit exists`, async () => {
-        // Create flight 
-        // Identify Passenger
-        // Try and withdraw credit
-        // Should get a no credit exists error
-        // Check bool to make sure error was thrown
+        // ACT
+        try{
+          await config.flightSuretyApp.withdraw({from: withdrawalAccount, gasPrice: 0});                  
+        } catch {
+          console.log("no funds to withdraw");
+          withdrawBlocked = true;
+        }
+        
+        let currentBalance = await web3.eth.getBalance(withdrawalAccount);
+
+        assert.equal(currentBalance, originalBalance, "Balance changed after withdrawing same amount twice");
+        assert.equal(withdrawBlocked, true, "Withdrawal has been blocked");
       });
 });
