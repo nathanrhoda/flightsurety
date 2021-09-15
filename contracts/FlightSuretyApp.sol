@@ -22,6 +22,15 @@ contract FlightSuretyApp {
 
     mapping(address => address[]) public consensusList;     
     
+    // Flight status codees
+    uint8 private constant STATUS_CODE_UNKNOWN = 0;
+    uint8 private constant STATUS_CODE_ON_TIME = 10;
+    uint8 private constant STATUS_CODE_LATE_AIRLINE = 20;
+    uint8 private constant STATUS_CODE_LATE_WEATHER = 30;
+    uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
+    uint8 private constant STATUS_CODE_LATE_OTHER = 50;
+        
+    
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
     /********************************************************************************************/
@@ -178,6 +187,19 @@ contract FlightSuretyApp {
         bytes32 flightKey = getFlightKey(airline, flightNumber, departureTime);
         dataContract.buy(flightKey, msg.sender, msg.value);
     }
+
+
+    function withdraw
+                    (
+                        
+                    )
+                    external
+                    payable
+                    requireIsOperational                    
+                    returns(uint256)
+    {        
+        return dataContract.pay(msg.sender);
+    }
     
    /**
     * @dev Called after oracle has updated flight status
@@ -190,9 +212,15 @@ contract FlightSuretyApp {
                                     uint256 timestamp,
                                     uint8 statusCode
                                 )
-                                internal
-                                pure
+                                public                                
+                                requireIsOperational
     {
+        bytes32 flightKey = getFlightKey(airline, flight, timestamp);
+        
+        if(statusCode == STATUS_CODE_LATE_AIRLINE) {
+            // 1.5 when its airlines fault
+            dataContract.creditInsurees(flightKey, statusCode, 150);            
+        }        
     }
 
 
@@ -395,4 +423,7 @@ abstract contract IFlightSuretyData {
 
     function registerFlight(string calldata flightNumber, uint256 departureTime) external virtual returns(bool);
     function buy(bytes32 flightKey, address passenger, uint256 amount) external virtual;
+
+    function creditInsurees(bytes32 flightKey, uint8 statusCode, uint8 multiplier) external virtual;
+    function pay(address passenger) external virtual returns(uint256);
 }

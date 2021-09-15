@@ -10,14 +10,6 @@ contract FlightSuretyData {
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
 
-    // Flight status codees
-    uint8 private constant STATUS_CODE_UNKNOWN = 0;
-    uint8 private constant STATUS_CODE_ON_TIME = 10;
-    uint8 private constant STATUS_CODE_LATE_AIRLINE = 20;
-    uint8 private constant STATUS_CODE_LATE_WEATHER = 30;
-    uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
-    uint8 private constant STATUS_CODE_LATE_OTHER = 50;
-
     struct Airline {
         address addr;
         string name;
@@ -48,6 +40,8 @@ contract FlightSuretyData {
     }
 
     mapping(bytes32 => Insurance[]) insuranceCover;
+    mapping(address => uint256) passengerCreditFlights;
+    
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/    
@@ -302,15 +296,43 @@ contract FlightSuretyData {
         
         return (hasInsurance, insurance.passenger, insurance.isCredited, insurance.amount);        
     }
+
+
+     function getCredits
+                        (
+                            address passenger
+                        )
+                        external
+                        
+                        payable
+                        requireIsOperational
+                        returns(uint256)
+    {
+       return passengerCreditFlights[passenger];                
+    }
+
+
     /**
      *  @dev Credits payouts to insurees
     */
     function creditInsurees
                                 (
+                                    bytes32 flightKey,
+                                    uint8 statusCode,
+                                    uint8 multiplier
                                 )
                                 external
                                 requireIsOperational              
     {
+        for(uint i=0; i<insuranceCover[flightKey].length; i++){
+            if(insuranceCover[flightKey][i].isCredited == false) {
+                insuranceCover[flightKey][i].isCredited = true;                
+                uint256 amount = insuranceCover[flightKey][i].amount.mul(multiplier).div(100);
+                passengerCreditFlights[insuranceCover[flightKey][i].passenger] += amount;                                           
+            }            
+        }           
+
+        flights[flightKey].statusCode = statusCode;     
     }
     
 
@@ -320,10 +342,21 @@ contract FlightSuretyData {
     */
     function pay
                             (
+                                address passenger
                             )
                             external
-                            requireIsOperational
+                            requireIsOperational        
+                            returns(uint256)                    
     {
+        require(passenger == tx.origin, "Contracts not allowed");
+        uint256 amount = passengerCreditFlights[passenger];
+        passengerCreditFlights[passenger] = 0;
+                
+        delete passengerCreditFlights[passenger];
+        address payable passengerPayableAddress = payable(address(uint160((address(passenger)))));  
+        passengerPayableAddress.transfer(amount);        
+
+        return amount;
     }
 
    /**
@@ -366,7 +399,7 @@ contract FlightSuretyData {
 
         flights[flightKey] = Flight({ 
                                         isRegistered: true,
-                                        statusCode: STATUS_CODE_UNKNOWN,
+                                        statusCode: 0,
                                         updatedTimestamp: departureTime,
                                         airline: msg.sender
                                     });         
