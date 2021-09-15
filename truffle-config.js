@@ -10,6 +10,9 @@ module.exports = {
       gas: 4600000
     }
   },
+  mocha: {
+    timeout: 100000         
+  },
   compilers: {
     solc: {
       version: "0.8.0"

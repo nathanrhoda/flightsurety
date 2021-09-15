@@ -134,8 +134,7 @@ contract('Flight Tests', async (accounts) => {
         // ACT
         try{
           await config.flightSuretyApp.withdraw({from: withdrawalAccount, gasPrice: 0});                  
-        } catch {
-          console.log("no funds to withdraw");
+        } catch {          
           withdrawBlocked = true;
         }
         
