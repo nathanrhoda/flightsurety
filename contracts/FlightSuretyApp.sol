@@ -120,6 +120,10 @@ contract FlightSuretyApp {
     }
 
 
+    /********************************************************************************************/
+    /*                                     AIRLINE FUNCTIONS                                    */
+    /********************************************************************************************/
+
    /**
     * @dev Add an airline to the registration queue
     *
@@ -167,6 +171,11 @@ contract FlightSuretyApp {
 
         dataContract.fundAirline(msg.sender);
     }
+
+
+    /********************************************************************************************/
+    /*                                     FLIGHT FUNCTIONS                                     */
+    /********************************************************************************************/
    /**
     * @dev Register a future flight for insuring.
     *
@@ -186,39 +195,7 @@ contract FlightSuretyApp {
         dataContract.registerFlight(flightNumber, departureTime);       
     }
 
-    function buyInsurance
-                    (
-                        address airline,
-                        string memory flightNumber,
-                        uint256 departureTime                        
-                    )
-                    external
-                    payable
-                    requireIsOperational
-    {
-        require(msg.value < 1 ether, "Funded amount must be less than 1 ETH");    
-        bytes32 flightKey = getFlightKey(airline, flightNumber, departureTime);
-
-        bool hasInsurance = dataContract.passengerHasInsuranceCover(flightKey, msg.sender);
-        require(hasInsurance == false, "Passenged has already bought insurance for this flight");
-        
-        dataContract.buy(flightKey, msg.sender, msg.value);
-    }
-
-
-    function withdraw
-                    (
-                        
-                    )
-                    external
-                    payable
-                    requireIsOperational                    
-                    returns(uint256)
-    {        
-        return dataContract.pay(msg.sender);
-    }
-    
-   /**
+       /**
     * @dev Called after oracle has updated flight status
     *
     */  
@@ -262,7 +239,45 @@ contract FlightSuretyApp {
         emit OracleRequest(index, airline, flight, timestamp);
     }     
 
-// region ORACLE MANAGEMENT
+    /********************************************************************************************/
+    /*                                     INSURANCE FUNCTIONS                                  */
+    /********************************************************************************************/
+
+    function buyInsurance
+                    (
+                        address airline,
+                        string memory flightNumber,
+                        uint256 departureTime                        
+                    )
+                    external
+                    payable
+                    requireIsOperational
+    {
+        require(msg.value < 1 ether, "Funded amount must be less than 1 ETH");    
+        bytes32 flightKey = getFlightKey(airline, flightNumber, departureTime);
+
+        bool hasInsurance = dataContract.passengerHasInsuranceCover(flightKey, msg.sender);
+        require(hasInsurance == false, "Passenged has already bought insurance for this flight");
+        
+        dataContract.buy(flightKey, msg.sender, msg.value);
+    }
+
+
+    function withdraw
+                    (
+                        
+                    )
+                    external
+                    payable
+                    requireIsOperational                    
+                    returns(uint256)
+    {        
+        return dataContract.pay(msg.sender);
+    }    
+
+    /********************************************************************************************/
+    /*                                     ORACLE FUNCTIONS                                     */
+    /********************************************************************************************/
 
     // Incremented to add pseudo-randomness at various points
     uint8 private nonce = 0;    
