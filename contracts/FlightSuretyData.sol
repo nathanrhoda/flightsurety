@@ -45,6 +45,14 @@ contract FlightSuretyData {
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/    
+    event AirlineRegistered (string name, address airline);
+    event AirlineFunded(address airline);
+    event InsuranceBought(address passenger, bytes32 flightkey);
+    event CreditInsurees(bytes32 flightkey);
+    event FlightStatusUpdated(bytes32 flightKey, uint8 status);
+    event PassengedWithdrawal(address passenger, uint256 amount);
+    event RegisterFlight(bytes32 flightKey, string flightNumber);
+
 
     /**
     * @dev Constructor
@@ -221,7 +229,8 @@ contract FlightSuretyData {
                                         isRegistered: true,
                                         isFunded: false
                                     });
-        registeredAirlines.push(account);        
+        registeredAirlines.push(account);   
+        emit AirlineRegistered(name, account);
         return true;                        
     }
 
@@ -241,6 +250,7 @@ contract FlightSuretyData {
                         requireCallerAuthorized                    
     {        
         airlines[account].isFunded = true;                
+        emit AirlineFunded(account);
     }
 
     /********************************************************************************************/
@@ -270,6 +280,8 @@ contract FlightSuretyData {
                                                     isCredited: false,
                                                     amount: amount
                                                 }));        
+
+        emit InsuranceBought(passenger, flightKey);
     }
 
     function getInsurance
@@ -330,6 +342,7 @@ contract FlightSuretyData {
         }           
 
        updateFlightStatus(flightKey, statusCode);
+       emit CreditInsurees(flightKey);
     }
 
     function updateFlightStatus     
@@ -342,6 +355,7 @@ contract FlightSuretyData {
                             requireCallerAuthorized
     {
         flights[flightKey].statusCode = statusCode;     
+        emit FlightStatusUpdated(flightKey, statusCode);
     }
     
 
@@ -367,6 +381,7 @@ contract FlightSuretyData {
         address payable passengerPayableAddress = payable(address(uint160((address(passenger)))));  
         passengerPayableAddress.transfer(amount);        
 
+        emit PassengedWithdrawal(passenger, amount);
         return amount;
     }
 
@@ -422,6 +437,7 @@ contract FlightSuretyData {
                                     });         
         
         registeredFlights.push(flightNumber);
+        emit RegisterFlight(flightKey, flightNumber);
         return true;
     }
 
