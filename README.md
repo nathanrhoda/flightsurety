@@ -62,3 +62,6 @@ internal vs external
 converting to view where possible
 adding events
 oracle tests
+
+Increasing default tokens for accounts 
+ganache-cli "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"  --defaultBalanceEther 1000

@@ -74,11 +74,10 @@ contract('Flight Tests', async (accounts) => {
         try {
           await config.flightSuretyApp.buyInsurance(flight1.airline, flight1.number, flight1.departureTime, {from: accounts[9], value: INVALID_INSURANCE_AMOUNT})                    
         } catch {          
-          //console.log("Invalid amount supplied for insurance");
         }
 
         // ASSERT
-        let response = await config.flightSuretyData.getInsurance.call(flightKey, {from: accounts[9], value: INVALID_INSURANCE_AMOUNT});             
+        let response = await config.flightSuretyData.getInsurance.call(flightKey, {from: accounts[9]});             
         
         assert.equal(response[0], false, "Should not have insurance for this flight");
       });
@@ -91,6 +90,22 @@ contract('Flight Tests', async (accounts) => {
         // ASSERT
         let response = await config.flightSuretyData.getInsurance.call(flightKey, {from: accounts[8]});        
         assert.equal(response[0], true, "Should have insurance for this flight");
+      });
+
+      it(`(passenger) may not buy insurance a second time`,  async () => {        
+        // ARRANGE
+        let errorForTryingToBuyInsuranceTwice = false;
+
+        // ACT
+        try {
+          await config.flightSuretyApp.buyInsurance(flight1.airline, flight1.number, flight1.departureTime, {from: accounts[8], value: VALID_INSURANCE_AMOUNT})
+        } catch {
+          //console.log("Error for trying to buy insurance twice");
+          errorForTryingToBuyInsuranceTwice = true;
+        }
+
+        // ASSERT
+        assert.equal(errorForTryingToBuyInsuranceTwice, true, "Passenger was able to buy insurance for same flight twice")                        
       });
             
 

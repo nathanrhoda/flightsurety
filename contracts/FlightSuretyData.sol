@@ -102,37 +102,16 @@ contract FlightSuretyData {
         require(authorizedAccounts[msg.sender] == 1, "Caller is not authorized");
         _;        
     }
-
-    modifier requireAirlineFunded(address account)
-    {
-        require(airlines[account].isFunded == true);
-        _;
-    }
-
-    modifier requirePassengerDoesNotHaveInsuranceCover(bytes32 flightKey, address passenger)
-    {        
-        bool hasCover = PassengerHasInsuranceCover(flightKey, passenger);
-        require(hasCover == false, "Passenger already has insurance cover");
-        _;
-    }
-
-    modifier requireItIsAirline
-                        (
-                            address account  
-                        )                       
-    {                
-        require(airlines[account].isRegistered == true, "This is not a airline");
-        _;
-    }
+    
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
-    function PassengerHasInsuranceCover
+    function passengerHasInsuranceCover
                                 (
                                     bytes32 flightKey,
                                     address passenger
                                 )
-                                internal
+                                external
                                 view
                                 returns (bool)                                             
     {
@@ -229,9 +208,7 @@ contract FlightSuretyData {
                             requireIsOperational
                             requireCallerAuthorized
                             returns (bool)                                                 
-    {
-        require(airlines[account].isRegistered == false, "Account has already been registered");        
-        
+    {                
         airlines[account] = Airline({
                                         addr: account,
                                         name: name,
@@ -257,8 +234,7 @@ contract FlightSuretyData {
                         requireIsOperational     
                         requireCallerAuthorized                    
     {        
-        airlines[account].isFunded = true;        
-        require(this.isAirlineFunded(account), "Data Airline not funded");
+        airlines[account].isFunded = true;                
     }
    /**
     * @dev Buy insurance for a flight
@@ -272,13 +248,9 @@ contract FlightSuretyData {
                         ) 
                         external
                         payable
-                        requireIsOperational    
-                        requirePassengerDoesNotHaveInsuranceCover(flightKey, passenger)          
+                        requireIsOperational                                   
                         requireCallerAuthorized                                                          
-    {
-        
-        require(amount < 1 ether, "Funded amount must be less than 1 ETH");    
-        
+    {                        
         address payable payableAddress = payable(address(uint160((address(this)))));  
         payableAddress.transfer(amount);
 
@@ -292,10 +264,9 @@ contract FlightSuretyData {
     function getInsurance
                         (
                             bytes32 flightKey
-                        )
-                        external
-                        
-                        payable
+                        )                        
+                        external                                                
+                        view
                         requireIsOperational
                         returns(bool hasInsurnace, address passenger, bool isCredited, uint256 amount)
     {
@@ -415,9 +386,7 @@ contract FlightSuretyData {
                             requireCallerAuthorized                            
                             returns(bool)
     {
-        bytes32 flightKey = getFlightKey(msg.sender, flightNumber, departureTime);                        
-        require(flights[flightKey].isRegistered == false, "Flight has already been registered");
-
+        bytes32 flightKey = getFlightKey(msg.sender, flightNumber, departureTime);                                
         flights[flightKey] = Flight({ 
                                         isRegistered: true,
                                         statusCode: 0,
@@ -427,6 +396,17 @@ contract FlightSuretyData {
         
         registeredFlights.push(flightNumber);
         return true;
+    }
+
+    function isFlightRegistered
+                        (
+                            bytes32 flightKey
+                        )
+                        external
+                        view
+                        returns(bool)
+    {
+        return flights[flightKey].isRegistered;        
     }
 
     function getFlights

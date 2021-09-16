@@ -72,7 +72,7 @@ contract FlightSuretyApp {
         }
         _;
     }
-   
+       
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -130,6 +130,10 @@ contract FlightSuretyApp {
                             returns(bool success, uint256 votes)
     {       
         address[] memory registeredAirlines = dataContract.getRegisteredAirlines();
+        for(uint8 i=0; i<registeredAirlines.length; i++) {
+            require(registeredAirlines[i] != account, "Account has already been registered");        
+        }
+        
         uint consensusRequiered = registeredAirlines.length / 2;
 
         bool result = false;
@@ -171,6 +175,9 @@ contract FlightSuretyApp {
                                 requireIsOperational
                                 requireAirlineIsFunded(msg.sender)
     {                         
+        bytes32 flightKey = getFlightKey(msg.sender, flightNumber, departureTime);                        
+        bool isFlightRegistered = dataContract.isFlightRegistered(flightKey);
+        require(isFlightRegistered == false, "Flight has already been registered");
         dataContract.registerFlight(flightNumber, departureTime);       
     }
 
@@ -184,7 +191,12 @@ contract FlightSuretyApp {
                     payable
                     requireIsOperational
     {
+        require(msg.value < 1 ether, "Funded amount must be less than 1 ETH");    
         bytes32 flightKey = getFlightKey(airline, flightNumber, departureTime);
+
+        bool hasInsurance = dataContract.passengerHasInsuranceCover(flightKey, msg.sender);
+        require(hasInsurance == false, "Passenged has already bought insurance for this flight");
+        
         dataContract.buy(flightKey, msg.sender, msg.value);
     }
 
@@ -422,8 +434,10 @@ abstract contract IFlightSuretyData {
     function getRegisteredAirlines() external view virtual returns(address[] memory);    
 
     function registerFlight(string calldata flightNumber, uint256 departureTime) external virtual returns(bool);
+    function isFlightRegistered(bytes32 flightKey) external view virtual returns(bool);
     function buy(bytes32 flightKey, address passenger, uint256 amount) external virtual;
 
+    function passengerHasInsuranceCover(bytes32 flightKey, address passenger) external virtual returns(bool);
     function creditInsurees(bytes32 flightKey, uint8 statusCode, uint8 multiplier) external virtual;
     function pay(address passenger) external virtual returns(uint256);
 }
