@@ -233,6 +233,7 @@ contract FlightSuretyApp {
             // 1.5 when its airlines fault
             dataContract.creditInsurees(flightKey, statusCode, 150);            
         }        
+        dataContract.updateFlightStatus(flightKey, statusCode);
     }
 
 
@@ -440,4 +441,6 @@ abstract contract IFlightSuretyData {
     function passengerHasInsuranceCover(bytes32 flightKey, address passenger) external virtual returns(bool);
     function creditInsurees(bytes32 flightKey, uint8 statusCode, uint8 multiplier) external virtual;
     function pay(address passenger) external virtual returns(uint256);
+
+    function updateFlightStatus(bytes32 flightKey, uint8 statusCode) public virtual;
 }

@@ -194,6 +194,12 @@ contract FlightSuretyData {
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
 
+
+    /********************************************************************************************/
+    /*                                     AIRLINE FUNCTIONS                                    */
+    /********************************************************************************************/
+
+    
    /**
     * @dev Add an airline to the registration queue
     *      Can only be called from FlightSuretyApp contract
@@ -236,6 +242,11 @@ contract FlightSuretyData {
     {        
         airlines[account].isFunded = true;                
     }
+
+    /********************************************************************************************/
+    /*                                     INSURANCE FUNCTIONS                                  */
+    /********************************************************************************************/
+
    /**
     * @dev Buy insurance for a flight
     *
@@ -289,7 +300,6 @@ contract FlightSuretyData {
                             address passenger
                         )
                         external
-                        
                         payable
                         requireIsOperational
                         returns(uint256)
@@ -319,6 +329,18 @@ contract FlightSuretyData {
             }            
         }           
 
+       updateFlightStatus(flightKey, statusCode);
+    }
+
+    function updateFlightStatus     
+                            (
+                                bytes32 flightKey,
+                                uint8 statusCode
+                            )
+                            public
+                            requireIsOperational
+                            requireCallerAuthorized
+    {
         flights[flightKey].statusCode = statusCode;     
     }
     
@@ -362,6 +384,11 @@ contract FlightSuretyData {
                             requireCallerAuthorized                            
     {
     }
+
+
+    /********************************************************************************************/
+    /*                                     FLIGHT FUNCTIONS                                     */
+    /********************************************************************************************/
 
     function getFlightKey
                         (
