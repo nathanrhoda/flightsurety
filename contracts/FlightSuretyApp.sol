@@ -65,6 +65,12 @@ contract FlightSuretyApp {
         _;
     }
 
+    modifier requireIsAirline(address addr)
+    {
+        require(dataContract.isAirline(addr), "This is not a airline");
+        _;
+    }
+
     modifier requireFirstTimeRegisteringAirline(address addr)
     {        
         for(uint i=0; i<consensusList[addr].length; i++){
@@ -79,6 +85,11 @@ contract FlightSuretyApp {
         _;
     }
        
+    modifier requireEthIsLessThanOne()
+    {
+        require(msg.value < 1 ether, "Funded amount must be less than 1 ETH");    
+        _;
+    }
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -165,6 +176,7 @@ contract FlightSuretyApp {
                         payable
                         requireIsOperational
                         requireFundedAmountIs10ETH
+                        requireIsAirline(msg.sender)
     {        
         address payable payableAddress = payable(address(uint160((address(dataContract)))));  
         payableAddress.transfer(msg.value);
@@ -252,15 +264,15 @@ contract FlightSuretyApp {
                     external
                     payable
                     requireIsOperational
-    {
-        require(msg.value < 1 ether, "Funded amount must be less than 1 ETH");    
+                    requireEthIsLessThanOne
+    {        
         bytes32 flightKey = getFlightKey(airline, flightNumber, departureTime);
 
         bool hasInsurance = dataContract.passengerHasInsuranceCover(flightKey, msg.sender);
         require(hasInsurance == false, "Passenged has already bought insurance for this flight");
         
         dataContract.buy(flightKey, msg.sender, msg.value);
-    }
+    }    
 
 
     function withdraw

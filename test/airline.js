@@ -90,13 +90,13 @@ contract('Airline Tests', async (accounts) => {
     await config.flightSuretyApp.fundAirline({from: config.firstAirline, value: TEN_ETHER, gasPrice: 0})    
     // Airline 2
     await config.flightSuretyApp.registerAirline(airline2Name, airline2, {from: config.firstAirline});
-    await config.flightSuretyApp.fundAirline({from: airline2, value: TEN_ETHER, gasPrice: 0})
+    //await config.flightSuretyApp.fundAirline({from: airline2, value: TEN_ETHER, gasPrice: 0})
     // Airline 3
     await config.flightSuretyApp.registerAirline(airline3Name, airline3, {from: config.firstAirline});
-    await config.flightSuretyApp.fundAirline({from: airline3, value: TEN_ETHER, gasPrice: 0})
+    //await config.flightSuretyApp.fundAirline({from: airline3, value: TEN_ETHER, gasPrice: 0})
     // Airline 4
     await config.flightSuretyApp.registerAirline(airline4Name, airline4, {from: config.firstAirline});
-    await config.flightSuretyApp.fundAirline({from: airline4, value: TEN_ETHER, gasPrice: 0})
+    //await config.flightSuretyApp.fundAirline({from: airline4, value: TEN_ETHER, gasPrice: 0})
     
     //ACT  
     // Airline 5
@@ -112,8 +112,8 @@ contract('Airline Tests', async (accounts) => {
     // ARRANGE
     let airline = accounts[7]
     let airlineName = "Airline 7";    
-
     let approvingAirline1 = accounts[3];
+    await config.flightSuretyApp.fundAirline({from: approvingAirline1, value: TEN_ETHER, gasPrice: 0})
                             
     //ACT
     await config.flightSuretyApp.registerAirline(airlineName, airline, {from: config.firstAirline});    
