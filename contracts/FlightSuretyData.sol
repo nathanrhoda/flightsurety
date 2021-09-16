@@ -63,6 +63,7 @@ contract FlightSuretyData {
                                     isRegistered: true,
                                     isFunded: false
                                 });
+        authorizedAccounts[contractOwner] = 1;
         registeredAirlines.push(firstAirline);
     }
 
@@ -115,6 +116,14 @@ contract FlightSuretyData {
         _;
     }
 
+    modifier requireItIsAirline
+                        (
+                            address account  
+                        )                       
+    {                
+        require(airlines[account].isRegistered == true, "This is not a airline");
+        _;
+    }
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
@@ -142,7 +151,7 @@ contract FlightSuretyData {
                       (
                           address account  
                       )
-                      external
+                      public
                       view
                       returns(bool)
     {        
@@ -217,6 +226,8 @@ contract FlightSuretyData {
                                 address account
                             )
                             external  
+                            requireIsOperational
+                            requireCallerAuthorized
                             returns (bool)                                                 
     {
         require(airlines[account].isRegistered == false, "Account has already been registered");        
@@ -231,7 +242,10 @@ contract FlightSuretyData {
         return true;                        
     }
 
-    function getRegisteredAirlines() external view returns(address[] memory) {
+    function getRegisteredAirlines() 
+                            external
+                            view returns(address[] memory) 
+    {
         return registeredAirlines;
     }
 
@@ -240,9 +254,9 @@ contract FlightSuretyData {
                            address account 
                         )
                         external
-                        requireIsOperational
-    {
-        this.isAirline(account);            
+                        requireIsOperational     
+                        requireCallerAuthorized                    
+    {        
         airlines[account].isFunded = true;        
         require(this.isAirlineFunded(account), "Data Airline not funded");
     }
@@ -259,7 +273,8 @@ contract FlightSuretyData {
                         external
                         payable
                         requireIsOperational    
-                        requirePassengerDoesNotHaveInsuranceCover(flightKey, passenger)                                                                    
+                        requirePassengerDoesNotHaveInsuranceCover(flightKey, passenger)          
+                        requireCallerAuthorized                                                          
     {
         
         require(amount < 1 ether, "Funded amount must be less than 1 ETH");    
@@ -322,7 +337,8 @@ contract FlightSuretyData {
                                     uint8 multiplier
                                 )
                                 external
-                                requireIsOperational              
+                                requireIsOperational       
+                                requireCallerAuthorized
     {
         for(uint i=0; i<insuranceCover[flightKey].length; i++){
             if(insuranceCover[flightKey][i].isCredited == false) {
@@ -346,6 +362,7 @@ contract FlightSuretyData {
                             )
                             external
                             requireIsOperational        
+                            requireCallerAuthorized
                             returns(uint256)                    
     {
         require(passenger == tx.origin, "Contracts not allowed");
@@ -371,6 +388,7 @@ contract FlightSuretyData {
                             public
                             payable
                             requireIsOperational
+                            requireCallerAuthorized                            
     {
     }
 
@@ -393,6 +411,8 @@ contract FlightSuretyData {
                                 uint256 departureTime
                             )
                             external 
+                            requireIsOperational
+                            requireCallerAuthorized                            
                             returns(bool)
     {
         bytes32 flightKey = getFlightKey(msg.sender, flightNumber, departureTime);                        

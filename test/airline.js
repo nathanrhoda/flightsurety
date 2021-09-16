@@ -12,7 +12,7 @@ contract('Airline Tests', async (accounts) => {
     await config.flightSuretyData.authorizeCaller(config.flightSuretyApp.address);
   });
 
-  it('first airline is registered when contract is deployed', async () => {
+  it('(airline) first airline is registered when contract is deployed', async () => {
         
     // ACT
     let result = await config.flightSuretyData.isAirline.call(config.firstAirline);
