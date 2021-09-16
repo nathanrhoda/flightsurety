@@ -72,6 +72,12 @@ contract FlightSuretyApp {
         }
         _;
     }
+
+    modifier requireFundedAmountIs10ETH()
+    {
+        require(msg.value == 10 ether, "Funded amount is not 10 ETh");    
+        _;
+    }
        
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
@@ -154,9 +160,8 @@ contract FlightSuretyApp {
                         external
                         payable
                         requireIsOperational
-    {
-        require(msg.value == 10 ether, "Funded amount is not 10 ETh");    
-
+                        requireFundedAmountIs10ETH
+    {        
         address payable payableAddress = payable(address(uint160((address(dataContract)))));  
         payableAddress.transfer(msg.value);
 
