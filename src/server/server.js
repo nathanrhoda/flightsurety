@@ -12,11 +12,48 @@ let ORACLE_COUNT = 30;
 let oracles = [];
 let oracleIndexList = [];
 
+let STATUS_CODE_UNKNOWN = 0;
+let STATUS_CODE_ON_TIME = 10;
+let STATUS_CODE_LATE_AIRLINE = 20;
+let STATUS_CODE_LATE_WEATHER = 30;
+let STATUS_CODE_LATE_TECHNICAL = 40;
+let STATUS_CODE_LATE_OTHER = 50;
+const STATUS_CODES  = [
+  STATUS_CODE_UNKNOWN,
+  STATUS_CODE_ON_TIME,
+  STATUS_CODE_LATE_AIRLINE,
+  STATUS_CODE_LATE_WEATHER,
+  STATUS_CODE_LATE_TECHNICAL,
+  STATUS_CODE_LATE_OTHER
+];
+
+function generateRandomStatus() {
+  return STATUS_CODES[Math.floor(Math.random() * STATUS_CODES.length)];
+}
+
 flightSuretyApp.events.OracleRequest({ fromBlock: 0  }, function (error, event) {
   if (error) {
     console.log(event);
   } else {
-
+    // Generate a random status 
+    let statusCode = generateRandomStatus();
+    let index = event.returnValues.index;
+    let airline = event.returnValues.airline;
+    let flight = event.returnValues.flight;
+    let timestamp = event.returnValues.timestamp;
+        
+    for(let i=0; i<oracles.length; i++) {
+      if(oracles[i].index.include(index)) {
+        flightSuretyApp.methods.submitOracleResponse(index, airline, flight, timestamp, statusCode)
+          .send({from: oracles[i].address}, (error, result) => {
+            if(error){
+              console.log(error);
+            } else {
+              console.log(`${JSON.stringify(oracles[a])}: Status Code ${statusCode}`);
+            }
+          });
+      }
+    }
   }
 });
 
@@ -53,9 +90,9 @@ function initOracles(accounts) {
         }).then(() => {          
           flightSuretyApp.methods.getMyIndexes().call({
             "from": accounts[i]
-          }).then(result => {
-            console.log(`Oracle ${i} Registered at ${accounts[i]} with [${result}] indexes.`);
+          }).then(result => {            
             oracleIndexList.push(result);
+            console.log(`Oracle ${i} Registered at ${accounts[i]} with [${result}] indexes.`);
             console.log(`Oracle List: ${oracleIndexList.length}`);
           }).catch(err => {
             reject(err);
