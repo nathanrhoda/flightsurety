@@ -52,5 +52,5 @@ export default class Contract {
             .send({ from: self.owner}, (error, result) => {
                 callback(error, payload);                
             });
-    }
+    }        
 }

@@ -56,6 +56,16 @@ Deploy the contents of the ./dapp folder
 
 https://review.udacity.com/#!/rubrics/1711/view
 
+TODO
 wiring backend up to UI
+    
+    Register Airline
+    Fund Airline
+
+    Register flights
+
+    Passenger can purchase insurance for flight
+    Passenger Fetches flight status
+    
 
 ganache-cli "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"  --defaultBalanceEther 1000 -a 200 --gasLimit 300000000 --gasPrice 20000000000
