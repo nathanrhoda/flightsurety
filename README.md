@@ -59,4 +59,6 @@ https://review.udacity.com/#!/rubrics/1711/view
 oracle tests
 
 Increasing default tokens for accounts 
-ganache-cli "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"  --defaultBalanceEther 1000
+
+
+ganache-cli "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"  --defaultBalanceEther 1000 -a 200 --gasLimit 300000000 --gasPrice 20000000000
