@@ -71,7 +71,7 @@ contract FlightSuretyData {
                                     isRegistered: true,
                                     isFunded: false
                                 });
-        authorizedAccounts[contractOwner] = 1;
+        authorizedAccounts[contractOwner] = 1;        
         registeredAirlines.push(firstAirline);
     }
 
@@ -246,8 +246,7 @@ contract FlightSuretyData {
                            address account 
                         )
                         external
-                        requireIsOperational     
-                        requireCallerAuthorized                    
+                        requireIsOperational                             
     {        
         airlines[account].isFunded = true;                
         emit AirlineFunded(account);

@@ -1,4 +1,5 @@
 import FlightSuretyApp from '../../build/contracts/FlightSuretyApp.json';
+import FlightSuretyData from '../../build/contracts/FlightSuretyData.json';
 import Config from './config.json';
 import Web3 from 'web3';
 
@@ -8,13 +9,16 @@ export default class Contract {
         let config = Config[network];
         this.web3 = new Web3(new Web3.providers.HttpProvider(config.url));
         this.flightSuretyApp = new this.web3.eth.Contract(FlightSuretyApp.abi, config.appAddress);
+        this.flightSuretyData = new this.web3.eth.Contract(FlightSuretyData.abi, config.appAddress);
         this.initialize(callback);
         this.owner = null;
         this.airlines = [];
         this.passengers = [];
-    }
+    }    
 
+    
     initialize(callback) {
+        let self = this;
         this.web3.eth.getAccounts((error, accts) => {
            
             this.owner = accts[0];
@@ -28,9 +32,50 @@ export default class Contract {
             while(this.passengers.length < 5) {
                 this.passengers.push(accts[counter++]);
             }
+ 
+            self.flightSuretyData.contractOwner.call()
+                .then((won)=>console.log(won));
+            
+            self.flightSuretyData.methods
+                .authorizeCaller(accts[1]) 
+                .send({from: self.owner});
+    
+            // self.flightSuretyApp.methods                    
+            // .fundAirline()
+            // .send({from: accts[1], value: this.web3.utils.toWei("10", "ether")}, (error, result) =>{
+            //     callback(error);
+            // });
 
-            callback();
-        });
+            // Fund all airlines
+            // for(let i=0; i<this.airlines.length; i++) {
+            //     let registerAirlinePayload = {
+            //         airline: accts[i],
+            //         name: `Airline ${i}`
+            //     };
+
+                // self.flightSuretyApp.methods                    
+                //     .registerAirline(`Airline ${i}`, accts[i])
+                //     .send({from: accts[1]}, (error, result) =>{
+                //         callback(error, registerAirlinePayload);
+                //     });    
+                    
+                // self.flightSuretyApp.methods                    
+                //     .fundAirline()
+                //     .send({from: accts[i], value: this.web3.utils.toWei("10", "ether")}, (error, result) =>{
+                //         callback(error);
+                //     });                    
+            // } 
+
+            // Register all flights
+            // self.flightSuretyData.methods    
+            //     .getRegisteredAirlines()
+            //     .call({from:self.owner})
+            //         .then((airlineList) =>{
+            //             console.log(airlineList);
+            //         });
+             
+            //callback();
+        }); 
     }
 
     isOperational(callback) {
@@ -53,4 +98,8 @@ export default class Contract {
                 callback(error, payload);                
             });
     }        
+
+    buyInsurance(amount) {
+
+    }
 }

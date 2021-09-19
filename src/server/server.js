@@ -57,14 +57,6 @@ flightSuretyApp.events.OracleRequest({ fromBlock: 0  }, function (error, event) 
   }
 });
 
-const app = express();
-app.get('/api', (req, res) => {
-    res.send({
-      message: 'An API for use with your Dapp!'
-    })
-})
-
-
 /// Register 30 Oracles on startup
 function getOracles() {
   return new Promise((resolve, reject) => {
@@ -114,6 +106,13 @@ getOracles().then(accounts => {
     console.log(err.message);
   });
 });
+
+const app = express();
+app.get('/api', (req, res) => {
+    res.send({
+      message: 'An API for use with your Dapp!'
+    })
+})
 
 /// End Register Oracles on startup
 export default app;
