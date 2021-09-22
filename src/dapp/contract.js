@@ -74,14 +74,11 @@ export default class Contract {
                                               gas: 5000000,
                                               gasPrice: 20000000
                                             }, (error, result) =>{
-                                            //console.log(`IsRegistered: ${error} ${registerAirlinePayload.airline}`);                      
 
                                             if(i < 5)  {
-                                                  //console.log(`Fund airline ${registerAirlinePayload.airline}`)
                                                   self.flightSuretyApp.methods                                                                      
                                                       .fundAirline()
                                                       .send({from: registerAirlinePayload.airline, value: this.web3.utils.toWei("10", "ether")}, (error, result) =>{
-                                                        //console.log(`post fund ${registerAirlinePayload.airline}`);                                                                                                                          
                                                     
                                                         let flightPayload = {
                                                             flightNumber: `Flight ${i}`,
@@ -133,13 +130,15 @@ export default class Contract {
         //     flight: flight,
         //     timestamp: Math.floor(Date.now() / 1000)
         // } 
+        console.log(flightKey);
 
         self.flightSuretyData.methods
         .getFlightByKey(flightKey)
         .call({ from: self.owner})
             .then((flight) => {
+                console.log(flight[1]);
                 self.flightSuretyApp.methods
-                .fetchFlightStatus(flight.airline, flight.flight, flight.timestamp)
+                .fetchFlightStatus(flight[0], flight[1], flight[2])
                 .send({ from: self.owner}, (error, result) => {
                     callback(error, result);                
                 });

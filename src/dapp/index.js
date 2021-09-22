@@ -20,7 +20,7 @@ import './flightsurety.css';
     DOM.elid('submit-oracle').addEventListener('click', () => {
       let flightkey = DOM.elid('flight-number').value;
       let flightNumber = DOM.elid('flight-number').innerText;
-      console.log(flightNumber + " " + flightkey);
+      console.log(flightkey);
 
 
       contract.fetchFlightStatus(flightkey, (error, result) => {
@@ -29,8 +29,6 @@ import './flightsurety.css';
     })
 
     DOM.elid('load-flights').addEventListener('click', () => {
-
-
       contract.getAllFlightInfo((error, result) => {
         console.log(result);        
         var flightNumberDropdown = DOM.elid('flight-number'); 

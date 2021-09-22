@@ -8,7 +8,7 @@ let config = Config['localhost'];
 let web3 = new Web3(new Web3.providers.WebsocketProvider(config.url.replace('http', 'ws')));
 web3.eth.defaultAccount = web3.eth.accounts[0];
 let flightSuretyApp = new web3.eth.Contract(FlightSuretyApp.abi, config.appAddress);
-let ORACLE_COUNT = 30;
+let ORACLE_COUNT = 20;
 let oracles = [];
 let oracleIndexList = [];
 
@@ -31,30 +31,32 @@ function generateRandomStatus() {
   return STATUS_CODES[Math.floor(Math.random() * STATUS_CODES.length)];
 }
 
-flightSuretyApp.events.OracleRequest({ fromBlock: 0  }, function (error, event) {
+flightSuretyApp.events.OracleRequest({ fromBlock: 0  }, function (error, event) {  
   if (error) {
     console.log(event);
   } else {
+    
     // Generate a random status 
     let statusCode = generateRandomStatus();
     let index = event.returnValues.index;
     let airline = event.returnValues.airline;
     let flight = event.returnValues.flight;
     let timestamp = event.returnValues.timestamp;
-        
+            
     for(let i=0; i<oracles.length; i++) {
-      if(oracles[i].index.include(index)) {
-        flightSuretyApp.methods.submitOracleResponse(index, airline, flight, timestamp, statusCode)
-          .send({from: oracles[i].address}, (error, result) => {
+      console.log(`${oracleIndexList[i]} : ${index}`) 
+      if(oracleIndexList[i].includes(index)) {
+       flightSuretyApp.methods.submitOracleResponse(index, airline, flight, timestamp, statusCode)
+         .send({from: oracles[i]}, (error, result) => {
             if(error){
-              console.log(error);
+                console.log(error);
             } else {
-              console.log(`${JSON.stringify(oracles[a])}: Status Code ${statusCode}`);
+                console.log(`${JSON.stringify(oracles[i])}: Status Code ${statusCode}`);
             }
-          });
+         });
       }
     }
-  }
+   }
 });
 
 /// Register 30 Oracles on startup
