@@ -59,13 +59,11 @@ https://review.udacity.com/#!/rubrics/1711/view
 TODO
 wiring backend up to UI
     
-    Register Airline
-    Fund Airline
+    Retrieve Flights from Contract and display on UI
 
-    Register flights
-
+    Allow Passenger to buy Insurance
     Passenger can purchase insurance for flight
     Passenger Fetches flight status
     
 
-ganache-cli "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"  --defaultBalanceEther 1000 -a 200 --gasLimit 300000000 --gasPrice 20000000000
+ganache-cli "shuffle trip vanish horn myself tortoise chuckle child stage brother february shed"  --defaultBalanceEther 1000 -a 200 --gasLimit 300000000 --gasPrice 20000000000

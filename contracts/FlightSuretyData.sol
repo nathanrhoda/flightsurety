@@ -182,7 +182,6 @@ contract FlightSuretyData {
         return operational;
     }
 
-
     /**
     * @dev Sets contract operations on/off
     *
@@ -235,8 +234,9 @@ contract FlightSuretyData {
     }
 
     function getRegisteredAirlines() 
-                            external
-                            view returns(address[] memory) 
+                            public
+                            view 
+                            returns(address[] memory) 
     {
         return registeredAirlines;
     }
