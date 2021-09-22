@@ -25,6 +25,7 @@ contract FlightSuretyData {
     address[] registeredAirlines = new address[](0);
 
     struct Flight {        
+        string flightNumber;
         bool isRegistered;
         uint8 statusCode;
         uint256 updatedTimestamp;        
@@ -429,7 +430,8 @@ contract FlightSuretyData {
                             returns(bool)
     {
         bytes32 flightKey = getFlightKey(msg.sender, flightNumber, departureTime);                                
-        flights[flightKey] = Flight({                                         
+        flights[flightKey] = Flight({            
+                                        flightNumber: flightNumber,                             
                                         isRegistered: true,
                                         statusCode: 0,
                                         updatedTimestamp: departureTime,
@@ -451,6 +453,19 @@ contract FlightSuretyData {
                         returns(bool)
     {
         return flights[flightKey].isRegistered;        
+    }
+
+    function getFlightByKey
+                        (
+                            bytes32 flightKey
+                        )
+                        external
+                        view
+                        returns (address, string memory, uint256)
+    {
+        Flight memory flight = flights[flightKey]; 
+
+        return (flight.airline, flight.flightNumber, flight.updatedTimestamp);                              
     }
 
     function getFlights
