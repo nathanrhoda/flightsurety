@@ -13,6 +13,19 @@ import './flightsurety.css';
       display('Operational Status', 'Check if contract is operational', [{label: 'Operational Status', error: error, value: result}]);
     });
 
+    contract.getAllFlightInfo((error, result) => {
+      console.log(result);
+      var flightNumberDropdown = DOM.elid('flight-number'); 
+      var insuranceFlightNumberDropdown = DOM.elid('insurance-flight-number');     
+      
+      console.log(result.flights);
+      console.log(result.flightkeys);
+
+      for(let i=0; i<result.flights.length; i++) {
+        flightNumberDropdown.add(new Option(result.flights[i], result.flightkeys[i]));
+        insuranceFlightNumberDropdown.add(new Option(result.flights[i], result.flightkeys[i]));
+      }            
+    });
 
 
     // User-submitted transaction

@@ -24,7 +24,7 @@ contract FlightSuretyData {
     mapping(address=>Airline) private airlines;        
     address[] registeredAirlines = new address[](0);
 
-    struct Flight {
+    struct Flight {        
         bool isRegistered;
         uint8 statusCode;
         uint256 updatedTimestamp;        
@@ -32,6 +32,7 @@ contract FlightSuretyData {
     }
     mapping(bytes32 => Flight) private flights;
     string[] registeredFlights = new string[](0);
+    bytes32[] registeredFlightkeys = new bytes32[](0);
 
     struct Insurance {
         address passenger;
@@ -428,7 +429,7 @@ contract FlightSuretyData {
                             returns(bool)
     {
         bytes32 flightKey = getFlightKey(msg.sender, flightNumber, departureTime);                                
-        flights[flightKey] = Flight({ 
+        flights[flightKey] = Flight({                                         
                                         isRegistered: true,
                                         statusCode: 0,
                                         updatedTimestamp: departureTime,
@@ -436,6 +437,7 @@ contract FlightSuretyData {
                                     });         
         
         registeredFlights.push(flightNumber);
+        registeredFlightkeys.push(flightKey);
         emit RegisterFlight(flightKey, flightNumber);
         return true;
     }
@@ -460,6 +462,17 @@ contract FlightSuretyData {
                         returns(string[] memory)
     {
         return registeredFlights;
+    }
+
+      function getAllFlightsKeys
+                        (
+
+                        )
+                        external
+                        view
+                        returns (bytes32[] memory )
+    {
+        return registeredFlightkeys;
     }
 
 

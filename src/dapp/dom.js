@@ -30,7 +30,7 @@ export default class DOM {
     }
     
     static appendArray(el, children) {
-      children.forEach((child) => {
+      children.forEach((child) => {       
         if (Array.isArray(child)) {
           DOM.appendArray(el, child);
         } else if (child instanceof window.Element) {

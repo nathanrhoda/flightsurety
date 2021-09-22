@@ -121,7 +121,6 @@ export default class Contract {
             .getRegisteredAirlines()
             .call({from:self.owner})
                 .then((airlineList) =>{
-                  console.log('Before');
                     console.log(airlineList);
                 });         
      }
@@ -139,6 +138,23 @@ export default class Contract {
                 callback(error, payload);                
             });
     }        
+
+    getAllFlightInfo(callback){
+        let self = this;
+
+        self.flightSuretyData.methods
+            .getFlights()
+            .call({from: self.owner})
+                .then(flights=>{
+                    self.flightSuretyData.methods
+                    .getAllFlightsKeys()
+                    .call({from: self.owner}, (error, flightkeys) => {
+                        let flightInfo = {flights, flightkeys};
+                        callback(error, flightInfo);
+                    })         
+                });
+
+    }
 
     buyInsurance(amount) {
 
