@@ -28,7 +28,7 @@ contract FlightSuretyData {
         string flightNumber;
         bool isRegistered;
         uint8 statusCode;
-        uint256 updatedTimestamp;        
+        uint256 timestamp;        
         address airline;
     }
     mapping(bytes32 => Flight) private flights;
@@ -434,7 +434,7 @@ contract FlightSuretyData {
                                         flightNumber: flightNumber,                             
                                         isRegistered: true,
                                         statusCode: 0,
-                                        updatedTimestamp: departureTime,
+                                        timestamp: departureTime,
                                         airline: msg.sender
                                     });         
         
@@ -465,7 +465,7 @@ contract FlightSuretyData {
     {
         Flight memory flight = flights[flightKey]; 
 
-        return (flight.airline, flight.flightNumber, flight.updatedTimestamp);                              
+        return (flight.airline, flight.flightNumber, flight.timestamp);                              
     }
 
     function getFlights

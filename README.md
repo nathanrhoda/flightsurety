@@ -57,7 +57,9 @@ Deploy the contents of the ./dapp folder
 https://review.udacity.com/#!/rubrics/1711/view
 
 TODO
-wiring backend up to UI
+wiring backend up to UI    
+
+Issue with casting flightkey from index.js
     verify getflightByKey implementation is correct
     Passenger Fetches flight status
     

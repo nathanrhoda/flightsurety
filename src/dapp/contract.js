@@ -101,6 +101,7 @@ export default class Contract {
                                     });   
                             }
                             
+                            
                         }); 
                       }
                 callback();    
@@ -125,18 +126,24 @@ export default class Contract {
                 });         
      }
 
-    fetchFlightStatus(flight, callback) {        
+    fetchFlightStatus(flightKey, callback) {        
         let self = this;
-        let payload = {
-            airline: self.airlines[0],
-            flight: flight,
-            timestamp: Math.floor(Date.now() / 1000)
-        } 
-        self.flightSuretyApp.methods
-            .fetchFlightStatus(payload.airline, payload.flight, payload.timestamp)
-            .send({ from: self.owner}, (error, result) => {
-                callback(error, payload);                
-            });
+        // let payload = {
+        //     airline: self.airlines[0],
+        //     flight: flight,
+        //     timestamp: Math.floor(Date.now() / 1000)
+        // } 
+
+        self.flightSuretyData.methods
+        .getFlightByKey(flightKey)
+        .call({ from: self.owner})
+            .then((flight) => {
+                self.flightSuretyApp.methods
+                .fetchFlightStatus(flight.airline, flight.flight, flight.timestamp)
+                .send({ from: self.owner}, (error, result) => {
+                    callback(error, result);                
+                });
+            });                       
     }        
 
     getAllFlightInfo(callback){

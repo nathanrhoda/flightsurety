@@ -13,28 +13,37 @@ import './flightsurety.css';
       display('Operational Status', 'Check if contract is operational', [{label: 'Operational Status', error: error, value: result}]);
     });
 
-    contract.getAllFlightInfo((error, result) => {
-      console.log(result);
-      var flightNumberDropdown = DOM.elid('flight-number'); 
-      var insuranceFlightNumberDropdown = DOM.elid('insurance-flight-number');     
-      
-      console.log(result.flights);
-      console.log(result.flightkeys);
-
-      for(let i=0; i<result.flights.length; i++) {
-        flightNumberDropdown.add(new Option(result.flights[i], result.flightkeys[i]));
-        insuranceFlightNumberDropdown.add(new Option(result.flights[i], result.flightkeys[i]));
-      }            
-    });
+   
 
 
     // User-submitted transaction
     DOM.elid('submit-oracle').addEventListener('click', () => {
-      let flight = DOM.elid('flight-number').value;
+      let flightkey = DOM.elid('flight-number').value;
+      let flightNumber = DOM.elid('flight-number').innerText;
+      console.log(flightNumber + " " + flightkey);
 
-      contract.fetchFlightStatus(flight, (error, result) => {
+
+      contract.fetchFlightStatus(flightkey, (error, result) => {
         display('Oracles', 'Trigger oracles', [{label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp}]);
       });            
+    })
+
+    DOM.elid('load-flights').addEventListener('click', () => {
+
+
+      contract.getAllFlightInfo((error, result) => {
+        console.log(result);        
+        var flightNumberDropdown = DOM.elid('flight-number'); 
+        var insuranceFlightNumberDropdown = DOM.elid('insurance-flight-number');     
+        
+        console.log(result.flights);
+        console.log(result.flightkeys);
+  
+        for(let i=0; i<result.flights.length; i++) {
+          flightNumberDropdown.add(new Option(result.flights[i], result.flightkeys[i]));
+          insuranceFlightNumberDropdown.add(new Option(result.flights[i], result.flightkeys[i]));
+        }            
+      });       
     })
   });
 })();
