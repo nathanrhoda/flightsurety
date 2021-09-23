@@ -34,6 +34,18 @@ import './flightsurety.css';
       });            
     })
 
+    DOM.elid('submit-insurance').addEventListener('click', () => {
+      var insuranceDropdown = DOM.elid('insurance-flight-number');
+      let flightkey = insuranceDropdown.value;      
+      
+      var insuranceAmount = DOM.elid('insurance-amount').value;
+
+      contract.buyInsurance(flightkey, insuranceAmount, (error, result) => {
+        // Check to see if successfull
+          display('Insurance', 'Buying Insurance', [{label: '', error: error, value: result}]);                               
+      });
+    });
+
     DOM.elid('load-flights').addEventListener('click', () => {
       contract.getAllFlightInfo((error, result) => {
         console.log(result);        

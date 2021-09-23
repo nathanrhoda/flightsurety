@@ -59,8 +59,7 @@ https://review.udacity.com/#!/rubrics/1711/view
 TODO
 wiring backend up to UI    
     
-    Allow Passenger to buy Insurance
-    Passenger can purchase insurance for flight
+    Test Buying Insurance logic
     
 
 ganache-cli "shuffle trip vanish horn myself tortoise chuckle child stage brother february shed"  --defaultBalanceEther 1000 -a 200 --gasLimit 300000000 --gasPrice 20000000000

@@ -164,7 +164,22 @@ export default class Contract {
 
     }
     
-    buyInsurance(amount) {
+    buyInsurance(flightKey, amount, callback) {
+        let self = this;
 
+        this.web3.eth.getAccounts((error, accts) => {
+            let passenger = accts[0];
+
+            self.flightSuretyApp.methods
+            .buyInsuranceByFlightKey(flightKey)
+            .send({
+                    from: passenger,
+                    gas: 5000000,
+                    gasPrice: 20000000,
+                    value: this.web3.utils.toWei(amount, "ether")},
+                    (error, result) => {                                                                                          
+                callback(error, result);
+                }); 
+        });       
     }
 }

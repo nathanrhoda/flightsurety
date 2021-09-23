@@ -269,6 +269,21 @@ contract FlightSuretyApp {
         bytes32 flightKey = getFlightKey(airline, flightNumber, departureTime);
 
         bool hasInsurance = dataContract.passengerHasInsuranceCover(flightKey, msg.sender);
+        require(hasInsurance == false, "Passenger has already bought insurance for this flight");
+        
+        dataContract.buy(flightKey, msg.sender, msg.value);
+    }    
+
+    function buyInsuranceByFlightKey
+                    (
+                      bytes32 flightKey                       
+                    )
+                    external
+                    payable
+                    requireIsOperational
+                    requireEthIsLessThanOne
+    {                
+        bool hasInsurance = dataContract.passengerHasInsuranceCover(flightKey, msg.sender);
         require(hasInsurance == false, "Passenged has already bought insurance for this flight");
         
         dataContract.buy(flightKey, msg.sender, msg.value);
