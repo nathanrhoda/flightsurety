@@ -41,8 +41,12 @@ import './flightsurety.css';
       var insuranceAmount = DOM.elid('insurance-amount').value;
 
       contract.buyInsurance(flightkey, insuranceAmount, (error, result) => {
-        // Check to see if successfull
-          display('Insurance', 'Buying Insurance', [{label: '', error: error, value: result}]);                               
+        debugger;
+        if(error == null){          
+          display('Insurance', 'Buying Insurance', [{label: '', error: error, value: "Insurance Bought Successfully"}]);                               
+        } else {        
+          display('Insurance', 'Buying Insurance', [{label: '', error: error, value: result}]);                                         
+        }
       });
     });
 

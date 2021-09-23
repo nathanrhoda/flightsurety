@@ -52,14 +52,4 @@ Deploy the contents of the ./dapp folder
 * [Web3Js Reference](https://github.com/ethereum/wiki/wiki/JavaScript-API)
 
 
-//"server": "rm -rf ./build/server && webpack --config webpack.config.server.js"
-
-https://review.udacity.com/#!/rubrics/1711/view
-
-TODO
-wiring backend up to UI    
-    
-    Test Buying Insurance logic
-    
-
 ganache-cli "shuffle trip vanish horn myself tortoise chuckle child stage brother february shed"  --defaultBalanceEther 1000 -a 200 --gasLimit 300000000 --gasPrice 20000000000
