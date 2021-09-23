@@ -461,11 +461,11 @@ contract FlightSuretyData {
                         )
                         external
                         view
-                        returns (address, string memory, uint256)
+                        returns (address, string memory, uint256, uint8)
     {
         Flight memory flight = flights[flightKey]; 
 
-        return (flight.airline, flight.flightNumber, flight.timestamp);                              
+        return (flight.airline, flight.flightNumber, flight.timestamp, flight.statusCode);                              
     }
 
     function getFlights

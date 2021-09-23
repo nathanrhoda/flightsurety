@@ -125,18 +125,11 @@ export default class Contract {
 
     fetchFlightStatus(flightKey, callback) {        
         let self = this;
-        // let payload = {
-        //     airline: self.airlines[0],
-        //     flight: flight,
-        //     timestamp: Math.floor(Date.now() / 1000)
-        // } 
-        console.log(flightKey);
 
         self.flightSuretyData.methods
         .getFlightByKey(flightKey)
         .call({ from: self.owner})
-            .then((flight) => {
-                console.log(flight[1]);
+            .then((flight) => {                
                 self.flightSuretyApp.methods
                 .fetchFlightStatus(flight[0], flight[1], flight[2])
                 .send({ from: self.owner}, (error, result) => {
@@ -145,6 +138,15 @@ export default class Contract {
             });                       
     }        
 
+    getFlightByKey(flightKey, callback) {
+        let self = this;
+
+        self.flightSuretyData.methods
+        .getFlightByKey(flightKey)
+        .call({ from: self.owner}
+            , callback);
+                           
+    }
     getAllFlightInfo(callback){
         let self = this;
 
@@ -161,7 +163,7 @@ export default class Contract {
                 });
 
     }
-
+    
     buyInsurance(amount) {
 
     }

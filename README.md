@@ -58,10 +58,6 @@ https://review.udacity.com/#!/rubrics/1711/view
 
 TODO
 wiring backend up to UI    
-
-Issue with casting flightkey from index.js
-    verify getflightByKey implementation is correct
-    Passenger Fetches flight status
     
     Allow Passenger to buy Insurance
     Passenger can purchase insurance for flight

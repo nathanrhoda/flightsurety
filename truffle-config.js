@@ -1,5 +1,5 @@
 var HDWalletProvider = require("@truffle/hdwallet-provider");
-var mnemonic = "plastic skill wonder pistol blush future alley loop enact camp blame spread";
+var mnemonic = "caught town prison rural habit forget item letter antique jungle grab shuffle";
 
 module.exports = {
   networks: {
